@@ -13,14 +13,14 @@ import com.downtail.plus.extensions.MaskedExtension;
 
 import java.util.List;
 
-public class SampleAdapter extends RecyclerView.Adapter<SampleAdapter.SampleHolder> implements MaskedExtension {
+public class MaskedAdapter extends RecyclerView.Adapter<MaskedAdapter.SampleHolder> implements MaskedExtension {
 
 
     private Context context;
     private List<String> data;
     private OnItemClickListener onItemClickListener;
 
-    public SampleAdapter(Context context, List<String> data) {
+    public MaskedAdapter(Context context, List<String> data) {
         this.context = context;
         this.data = data;
     }
@@ -28,7 +28,7 @@ public class SampleAdapter extends RecyclerView.Adapter<SampleAdapter.SampleHold
     @NonNull
     @Override
     public SampleHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        return new SampleHolder(LayoutInflater.from(context).inflate(R.layout.item_sample, viewGroup,false));
+        return new SampleHolder(LayoutInflater.from(context).inflate(R.layout.item_masked, viewGroup,false));
     }
 
     @Override
