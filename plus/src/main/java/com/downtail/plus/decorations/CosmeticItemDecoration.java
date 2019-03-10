@@ -2,6 +2,7 @@ package com.downtail.plus.decorations;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Rect;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -25,7 +26,13 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
         if (cosmeticExtension != null) {
             int position = parent.getChildAdapterPosition(view);
             if (cosmeticExtension.isCosmeticItem(position)) {
-                outRect.top = 100;
+                View cosmeticView = cosmeticExtension.getCosmeticView(position);
+                if (cosmeticView!=null){
+                    cosmeticView.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+                    cosmeticView.layout(0, 0, cosmeticView.getMeasuredWidth(), cosmeticView.getMeasuredHeight());
+                    outRect.top = cosmeticView.getMeasuredHeight();
+                }
             }
         }
     }
@@ -42,15 +49,16 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
                 if (cosmeticExtension.isCosmeticItem(position)) {
                     View cosmeticView = cosmeticExtension.getCosmeticView(position);
                     if (cosmeticView != null) {
-                        DisplayMetrics displayMetrics = parent.getContext().getResources().getDisplayMetrics();
-                        cosmeticView.layout(0,0,displayMetrics.widthPixels,displayMetrics.heightPixels);
                         cosmeticView.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
                                 View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
                         cosmeticView.layout(0, 0, cosmeticView.getMeasuredWidth(), cosmeticView.getMeasuredHeight());
                         cosmeticView.setDrawingCacheEnabled(true);
-                        cosmeticView.buildDrawingCache();
-//                        Bitmap bitmap = Bitmap.createBitmap(cosmeticView.getMeasuredWidth(),cosmeticView.getMeasuredHeight());
-//                        c.drawBitmap(bitmap, child.getLeft(), child.getTop() - 100, null);
+                        cosmeticView.buildLayer();
+                        Bitmap bitmap = Bitmap.createBitmap(cosmeticView.getMeasuredWidth(), cosmeticView.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+                        Canvas canvas = new Canvas(bitmap);
+                        canvas.drawColor(Color.WHITE);
+                        cosmeticView.draw(canvas);
+                        c.drawBitmap(bitmap, child.getLeft(), child.getTop() - cosmeticView.getHeight(), null);
                     }
                 }
             }
