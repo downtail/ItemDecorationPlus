@@ -3,8 +3,10 @@ package com.downtail.itemdecorationplus;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.widget.Toast;
 
 import com.downtail.plus.decorations.CosmeticItemDecoration;
 
@@ -22,8 +24,14 @@ public class CosmeticActivity extends AppCompatActivity {
         setContentView(R.layout.activity_sample);
 
         rvSample = findViewById(R.id.rv_sample);
-        rvSample.setLayoutManager(new LinearLayoutManager(this));
+        rvSample.setLayoutManager(new GridLayoutManager(this,2));
         cosmeticAdapter = new CosmeticAdapter(CosmeticActivity.this, getData());
+        cosmeticAdapter.setOnItemClickListener(new CosmeticAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(int position) {
+                Toast.makeText(CosmeticActivity.this, "ahha" + position, Toast.LENGTH_SHORT).show();
+            }
+        });
         rvSample.setAdapter(cosmeticAdapter);
 
         CosmeticItemDecoration cosmeticItemDecoration = CosmeticItemDecoration.Builder

@@ -6,6 +6,8 @@ public interface CosmeticExtension {
 
     boolean isCosmeticItem(int position);
 
+    int getCosmeticHeight(int position);
+
     View getCosmeticView(int position);
 
 }

@@ -16,6 +16,7 @@ public class CosmeticAdapter extends RecyclerView.Adapter<CosmeticAdapter.Cosmet
 
     private Context context;
     private List<String> data;
+    private OnItemClickListener onItemClickListener;
 
     public CosmeticAdapter(Context context, List<String> data) {
         this.context = context;
@@ -29,8 +30,16 @@ public class CosmeticAdapter extends RecyclerView.Adapter<CosmeticAdapter.Cosmet
     }
 
     @Override
-    public void onBindViewHolder(@NonNull CosmeticHolder cosmeticHolder, int i) {
+    public void onBindViewHolder(@NonNull CosmeticHolder cosmeticHolder, final int i) {
         cosmeticHolder.tvCosmetic.setText(data.get(i));
+        cosmeticHolder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (onItemClickListener != null) {
+                    onItemClickListener.onItemClick(i);
+                }
+            }
+        });
     }
 
     @Override
@@ -49,12 +58,25 @@ public class CosmeticAdapter extends RecyclerView.Adapter<CosmeticAdapter.Cosmet
 
     @Override
     public boolean isCosmeticItem(int position) {
-        return position % 5 == 1;
+        return position % 7 == 1 || position == 2;
+    }
+
+    @Override
+    public int getCosmeticHeight(int position) {
+        return 200;
     }
 
     @Override
     public View getCosmeticView(int position) {
         return LayoutInflater.from(context).inflate(R.layout.layout_fill, null, false);
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(int position);
+    }
+
+    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+        this.onItemClickListener = onItemClickListener;
     }
 
 }
