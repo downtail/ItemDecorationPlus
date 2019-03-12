@@ -58,7 +58,7 @@ public class CosmeticAdapter extends RecyclerView.Adapter<CosmeticAdapter.Cosmet
 
     @Override
     public boolean isCosmeticItem(int position) {
-        return position % 7 == 1 || position == 2;
+        return position % 7 == 1 || position == 2||position==7;
     }
 
     @Override
@@ -68,7 +68,10 @@ public class CosmeticAdapter extends RecyclerView.Adapter<CosmeticAdapter.Cosmet
 
     @Override
     public View getCosmeticView(int position) {
-        return LayoutInflater.from(context).inflate(R.layout.layout_fill, null, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.layout_fill, null, false);
+        TextView textView = view.findViewById(R.id.tv_fill);
+        textView.setText(position + "ahha");
+        return view;
     }
 
     public interface OnItemClickListener {

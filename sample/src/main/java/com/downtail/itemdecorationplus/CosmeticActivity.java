@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 import android.widget.Toast;
 
 import com.downtail.plus.decorations.CosmeticItemDecoration;
@@ -24,7 +25,7 @@ public class CosmeticActivity extends AppCompatActivity {
         setContentView(R.layout.activity_sample);
 
         rvSample = findViewById(R.id.rv_sample);
-        rvSample.setLayoutManager(new GridLayoutManager(this,2));
+        rvSample.setLayoutManager(new LinearLayoutManager(this));
         cosmeticAdapter = new CosmeticAdapter(CosmeticActivity.this, getData());
         cosmeticAdapter.setOnItemClickListener(new CosmeticAdapter.OnItemClickListener() {
             @Override
@@ -36,6 +37,22 @@ public class CosmeticActivity extends AppCompatActivity {
 
         CosmeticItemDecoration cosmeticItemDecoration = CosmeticItemDecoration.Builder
                 .with(cosmeticAdapter)
+                .setOnCosmeticItemClickListener(new CosmeticItemDecoration.OnCosmeticItemClickListener() {
+                    @Override
+                    public void onCosmeticItemClick(int position) {
+                        Toast.makeText(CosmeticActivity.this, "点击了整个item", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setOnCosmeticViewClickListener(new CosmeticItemDecoration.OnCosmeticViewClickListener() {
+                    @Override
+                    public void onCosmeticViewClick(View view, int position) {
+                        switch (view.getId()) {
+                            case R.id.tv_fill:
+                                Toast.makeText(CosmeticActivity.this, "点击了tvFill", Toast.LENGTH_SHORT).show();
+                                break;
+                        }
+                    }
+                })
                 .build();
         rvSample.addItemDecoration(cosmeticItemDecoration);
     }
