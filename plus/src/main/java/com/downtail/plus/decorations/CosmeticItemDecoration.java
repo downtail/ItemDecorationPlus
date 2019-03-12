@@ -180,7 +180,6 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
                 int position = parent.getChildAdapterPosition(child);
                 if (orientation == ORIENTATION_VERTICAL) {
                     int topDistance = child.getTop();
-//                    if (cachePosition != -1) {
                     if (cosmeticExtension.isCosmeticItem(position)) {
                         int distance = cosmeticExtension.getCosmeticHeight(position);
                         if (topDistance - distance <= top) {
@@ -196,15 +195,7 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
                             }
                         }
                     }
-//                    } else {
-//                        if (cosmeticExtension.isCosmeticItem(position)) {
-//                            int distance = cosmeticExtension.getCosmeticHeight(position);
-//                            if (topDistance - distance <= top) {
-//                                cachePosition = position;
-//                                cacheEdges.put(position, child.getLeft());
-//                            }
-//                        }
-//                    }
+
                     if (cosmeticExtension.isCosmeticItem(position) && cachePosition != position) {
                         View cosmeticView = cosmeticExtension.getCosmeticView(position);
                         if (cosmeticView != null) {
@@ -225,32 +216,22 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
                     }
                 } else if (orientation == ORIENTATION_HORIZONTAL) {
                     int leftDistance = child.getLeft();
-                    if (cachePosition != -1) {
-                        if (cosmeticExtension.isCosmeticItem(position)) {
-                            int distance = cosmeticExtension.getCosmeticHeight(position);
-                            if (leftDistance - distance <= left) {
-                                cachePosition = position;
-                                cacheEdges.put(position, child.getTop());
-                            } else {
-                                cachePosition = getLatestCosmeticPosition(position - 1);
-                                if (cachePosition != -1) {
-                                    int cacheHeight = cosmeticExtension.getCosmeticHeight(cachePosition);
-                                    if (leftDistance - distance <= left + cacheHeight) {
-                                        leftDatumLine = leftDistance - distance - cacheHeight;
-                                    }
+                    if (cosmeticExtension.isCosmeticItem(position)) {
+                        int distance = cosmeticExtension.getCosmeticHeight(position);
+                        if (leftDistance - distance <= left) {
+                            cachePosition = position;
+                            cacheEdges.put(position, child.getTop());
+                        } else {
+                            cachePosition = getLatestCosmeticPosition(position - 1);
+                            if (cachePosition != -1) {
+                                int cacheHeight = cosmeticExtension.getCosmeticHeight(cachePosition);
+                                if (leftDistance - distance <= left + cacheHeight) {
+                                    leftDatumLine = leftDistance - distance - cacheHeight;
                                 }
                             }
                         }
-                    } else {
-                        if (cosmeticExtension.isCosmeticItem(position)) {
-                            int distance = cosmeticExtension.getCosmeticHeight(position);
-                            if (leftDistance - distance <= left) {
-                                cachePosition = position;
-                                cacheEdges.put(position, child.getTop());
-                            }
-                        }
                     }
-                    if (cosmeticExtension.isCosmeticItem(position)) {
+                    if (cosmeticExtension.isCosmeticItem(position) && cachePosition != position) {
                         View cosmeticView = cosmeticExtension.getCosmeticView(position);
                         if (cosmeticView != null) {
                             int length = cosmeticExtension.getCosmeticHeight(position);
@@ -258,16 +239,14 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
                                 GridLayoutManager gridLayoutManager = (GridLayoutManager) layoutManager;
                                 int spanCount = gridLayoutManager.getSpanCount();
                                 measureAndLayout(cosmeticView, length, getValidHeight(parent) / spanCount);
-                                leftDatumLine = child.getLeft() - cosmeticView.getWidth();
                             } else if (layoutManager instanceof LinearLayoutManager) {
                                 measureAndLayout(cosmeticView, length, getValidHeight(parent));
-                                leftDatumLine = child.getLeft() - cosmeticView.getWidth();
                             }
                             Bitmap bitmap = Bitmap.createBitmap(cosmeticView.getWidth(), cosmeticView.getHeight(), Bitmap.Config.ARGB_8888);
                             Canvas canvas = new Canvas(bitmap);
                             canvas.drawColor(Color.WHITE);
                             cosmeticView.draw(canvas);
-                            c.drawBitmap(bitmap, leftDatumLine, topDatumLine, null);
+                            c.drawBitmap(bitmap, child.getLeft() - cosmeticView.getWidth(), child.getTop(), null);
                         }
                     }
                 }
@@ -463,4 +442,5 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
     public interface OnCosmeticItemClickListener {
         void onCosmeticItemClick(int position);
     }
+
 }
