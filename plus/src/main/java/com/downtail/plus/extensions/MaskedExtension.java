@@ -1,5 +1,7 @@
 package com.downtail.plus.extensions;
 
+import android.view.View;
+
 public interface MaskedExtension {
 
     /**
@@ -9,5 +11,9 @@ public interface MaskedExtension {
      * @return
      */
     boolean isMaskedItem(int position);
+
+    int getMaskedHeight(int position);
+
+    View getMaskedView(int position);
 
 }

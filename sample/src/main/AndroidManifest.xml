@@ -16,6 +16,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".masked.MaskedActivity" />
+
+        <activity android:name=".cosmetic.CosmeticActivity" />
+
+        <activity android:name=".brvah.ExpandableActivity" />
+
     </application>
 
 </manifest>

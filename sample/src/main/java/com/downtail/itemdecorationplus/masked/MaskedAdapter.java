@@ -1,4 +1,4 @@
-package com.downtail.itemdecorationplus;
+package com.downtail.itemdecorationplus.masked;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -9,18 +9,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.downtail.itemdecorationplus.R;
 import com.downtail.plus.extensions.MaskedExtension;
+import com.downtail.plus.utils.SizeUtil;
 
 import java.util.List;
 
-public class SampleAdapter extends RecyclerView.Adapter<SampleAdapter.SampleHolder> implements MaskedExtension {
+public class MaskedAdapter extends RecyclerView.Adapter<MaskedAdapter.SampleHolder> implements MaskedExtension {
 
 
     private Context context;
     private List<String> data;
     private OnItemClickListener onItemClickListener;
 
-    public SampleAdapter(Context context, List<String> data) {
+    public MaskedAdapter(Context context, List<String> data) {
         this.context = context;
         this.data = data;
     }
@@ -28,7 +30,7 @@ public class SampleAdapter extends RecyclerView.Adapter<SampleAdapter.SampleHold
     @NonNull
     @Override
     public SampleHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        return new SampleHolder(LayoutInflater.from(context).inflate(R.layout.item_sample, viewGroup,false));
+        return new SampleHolder(LayoutInflater.from(context).inflate(R.layout.item_masked, viewGroup, false));
     }
 
     @Override
@@ -76,4 +78,17 @@ public class SampleAdapter extends RecyclerView.Adapter<SampleAdapter.SampleHold
         this.onItemClickListener = onItemClickListener;
     }
 
+    @Override
+    public int getMaskedHeight(int position) {
+        return SizeUtil.dip2px(context, 50);
+    }
+
+    @Override
+    public View getMaskedView(int position) {
+        View view = LayoutInflater.from(context).inflate(R.layout.item_masked, null, false);
+        view.setBackgroundColor(Color.parseColor("#ff0000"));
+        TextView textView = view.findViewById(R.id.tv_sample);
+        textView.setText(position + "");
+        return view;
+    }
 }

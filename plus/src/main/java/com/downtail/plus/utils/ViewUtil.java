@@ -38,4 +38,17 @@ public class ViewUtil {
         return children;
     }
 
+    /**
+     * 指定宽高的不可见view的测量和布局过程
+     *
+     * @param view
+     * @param width
+     * @param height
+     */
+    public static void measureAndLayout(View view, int width, int height) {
+        view.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY));
+        view.layout(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight());
+    }
+
 }
