@@ -2,4 +2,9 @@
 
 ## 效果图
 
-![](https://github.com/downtail/ItemDecorationPlus/raw/branch_dev/screenshots/masked.gif)
+<p align="center">
+    <img src="https://github.com/downtail/ItemDecorationPlus/raw/branch_dev/screenshots/masked.gi" alt="Sample"  width="250" height="140">
+    <p align="center">
+        <em>masked</em>
+    </p>
+</p>
