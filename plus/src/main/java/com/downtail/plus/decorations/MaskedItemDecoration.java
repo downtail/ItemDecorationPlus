@@ -7,8 +7,6 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -133,7 +131,7 @@ public class MaskedItemDecoration extends RecyclerView.ItemDecoration {
                 orientation = ((GridLayoutManager) layoutManager).getOrientation();
             } else if (layoutManager instanceof LinearLayoutManager) {
                 orientation = ((LinearLayoutManager) layoutManager).getOrientation();
-            } else if (layoutManager instanceof StaggeredGridLayoutManager) {
+            } else {
                 orientation = ORIENTATION_NONE;
             }
 
@@ -210,7 +208,6 @@ public class MaskedItemDecoration extends RecyclerView.ItemDecoration {
                     } else if (orientation == ORIENTATION_HORIZONTAL) {
                         topDatumLine = cacheEdges.get(cachePosition);
                     }
-                    Log.v("ysj", topDatumLine + " topDatumLine" + " bitmap " + cacheView.getHeight());
                     c.drawBitmap(bitmap, leftDatumLine, topDatumLine, null);
                 }
             }
