@@ -1,13 +1,15 @@
-package com.downtail.itemdecorationplus;
+package com.downtail.itemdecorationplus.masked;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Toast;
 
+import com.downtail.itemdecorationplus.R;
 import com.downtail.plus.decorations.MaskedItemDecoration;
 
 import java.util.ArrayList;

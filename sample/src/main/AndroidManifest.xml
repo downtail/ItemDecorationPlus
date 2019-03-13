@@ -17,9 +17,11 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".MaskedActivity"/>
+        <activity android:name=".masked.MaskedActivity" />
 
-        <activity android:name=".CosmeticActivity"/>
+        <activity android:name=".cosmetic.CosmeticActivity" />
+
+        <activity android:name=".brvah.ExpandableActivity" />
 
     </application>
 

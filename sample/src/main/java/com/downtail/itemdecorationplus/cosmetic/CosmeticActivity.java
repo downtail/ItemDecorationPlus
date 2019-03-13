@@ -1,4 +1,4 @@
-package com.downtail.itemdecorationplus;
+package com.downtail.itemdecorationplus.cosmetic;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Toast;
 
+import com.downtail.itemdecorationplus.R;
 import com.downtail.plus.decorations.CosmeticItemDecoration;
 
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ public class CosmeticActivity extends AppCompatActivity {
 
         rvSample = findViewById(R.id.rv_sample);
         rvSample.setLayoutManager(new LinearLayoutManager(this));
+//        rvSample.setLayoutManager(new GridLayoutManager(this, 2));
         cosmeticAdapter = new CosmeticAdapter(CosmeticActivity.this, getData());
         cosmeticAdapter.setOnItemClickListener(new CosmeticAdapter.OnItemClickListener() {
             @Override
@@ -40,7 +42,7 @@ public class CosmeticActivity extends AppCompatActivity {
                 .setOnCosmeticItemClickListener(new CosmeticItemDecoration.OnCosmeticItemClickListener() {
                     @Override
                     public void onCosmeticItemClick(int position) {
-                        Toast.makeText(CosmeticActivity.this, "点击了整个item", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(CosmeticActivity.this, "点击了整个item" + position, Toast.LENGTH_SHORT).show();
                     }
                 })
                 .setOnCosmeticViewClickListener(new CosmeticItemDecoration.OnCosmeticViewClickListener() {
@@ -48,7 +50,7 @@ public class CosmeticActivity extends AppCompatActivity {
                     public void onCosmeticViewClick(View view, int position) {
                         switch (view.getId()) {
                             case R.id.tv_fill:
-                                Toast.makeText(CosmeticActivity.this, "点击了tvFill", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(CosmeticActivity.this, "点击了tvFill" + position, Toast.LENGTH_SHORT).show();
                                 break;
                         }
                     }

@@ -2,17 +2,20 @@ package com.downtail.plus.decorations;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.util.SparseArray;
+import android.util.Log;
+import android.util.SparseIntArray;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
 import com.downtail.plus.extensions.MaskedExtension;
+import com.downtail.plus.utils.SizeUtil;
 import com.downtail.plus.utils.ViewUtil;
 
 import java.util.List;
@@ -34,14 +37,14 @@ public class MaskedItemDecoration extends RecyclerView.ItemDecoration {
     private RecyclerView recyclerView;
 
     /**
-     * 缓存的views对象
+     * 缓存position
      */
-    private SparseArray<View> cachePool;
+    private int cachePosition;
 
     /**
-     * 缓存的view对象
+     * 缓存边界位置
      */
-    private View cacheView;
+    private SparseIntArray cacheEdges;
 
     /**
      * 实际的布局方向
@@ -106,7 +109,8 @@ public class MaskedItemDecoration extends RecyclerView.ItemDecoration {
 
     private MaskedItemDecoration(MaskedExtension maskedExtension) {
         this.maskedExtension = maskedExtension;
-        this.cachePool = new SparseArray<>();
+        this.cacheEdges = new SparseIntArray();
+        this.cachePosition = -1;
         this.orientation = ORIENTATION_NONE;
     }
 
@@ -134,180 +138,105 @@ public class MaskedItemDecoration extends RecyclerView.ItemDecoration {
             }
 
             int childCount = parent.getChildCount();
-            for (int i = 0; i < childCount; i++) {
+            for (int i = childCount - 1; i >= 0; i--) {
                 View child = parent.getChildAt(i);
                 int position = parent.getChildAdapterPosition(child);
                 if (orientation == ORIENTATION_VERTICAL) {
                     int topDistance = child.getTop();
-                    if (cacheView != null) {
-                        if (maskedExtension.isMaskedItem(position)) {
-                            if (topDistance <= top) {
-                                cacheView = cachePool.get(position);
-                                if (cacheView == null) {
-                                    cachePool.append(position, child);
-                                    cacheView = child;
-                                    parent.getChildViewHolder(child).setIsRecyclable(false);
-                                }
-                            } else {
-                                clearCachePool(parent, position);
-                                int latestPosition = getLatestMaskedPosition(position - 1);
-                                if (latestPosition != -1) {
-                                    cacheView = cachePool.get(latestPosition);
-                                } else {
-                                    cacheView = null;
-                                }
-                                if (cacheView != null) {
-                                    if (topDistance < top + cacheView.getHeight()) {
-                                        topDatumLine = topDistance - cacheView.getHeight();
-                                    }
-                                }
-                                break;
-                            }
+                    if (maskedExtension.isMaskedItem(position)) {
+                        if (topDistance <= top) {
+                            cachePosition = position;
+                            cacheEdges.put(position, child.getLeft());
+                            break;
                         } else {
-                            clearCachePool(parent, position);
-                            int latestPosition = getLatestMaskedPosition(position);
-                            if (latestPosition != -1) {
-                                cacheView = cachePool.get(latestPosition);
-                            } else {
-                                cacheView = null;
-                            }
-                            if (cacheView != null) {
-                                if (layoutManager instanceof GridLayoutManager) {
-                                    if (topDistance > top + cacheView.getHeight()) {
-                                        break;
-                                    }
-                                } else if (layoutManager instanceof LinearLayoutManager) {
-                                    if (child.getBottom() > top + cacheView.getHeight()) {
-                                        break;
-                                    }
-                                }
-                            } else {
-                                if (layoutManager instanceof GridLayoutManager) {
-                                    //next
-                                } else if (layoutManager instanceof LinearLayoutManager) {
-                                    break;
+                            cachePosition = getLatestMaskedPosition(position - 1);
+                            if (cachePosition != -1) {
+                                int cacheHeight = maskedExtension.getMaskedHeight(cachePosition);
+                                if (topDistance < top + cacheHeight) {
+                                    topDatumLine = topDistance - cacheHeight;
                                 }
                             }
                         }
                     } else {
-                        if (maskedExtension.isMaskedItem(position)) {
-                            if (topDistance <= top) {
-                                cachePool.append(position, child);
-                                cacheView = child;
-                                parent.getChildViewHolder(child).setIsRecyclable(false);
-                            }
-                        } else {
-                            if (layoutManager instanceof GridLayoutManager) {
-                                //next
-                            } else if (layoutManager instanceof LinearLayoutManager) {
-                                break;
-                            }
-                        }
+                        cachePosition = getLatestMaskedPosition(position - 1);
                     }
                 } else if (orientation == ORIENTATION_HORIZONTAL) {
                     int leftDistance = child.getLeft();
-                    if (cacheView != null) {
-                        if (maskedExtension.isMaskedItem(position)) {
-                            if (leftDistance <= left) {
-                                cacheView = cachePool.get(position);
-                                if (cacheView == null) {
-                                    cachePool.append(position, child);
-                                    cacheView = child;
-                                    parent.getChildViewHolder(child).setIsRecyclable(false);
-                                }
-                            } else {
-                                clearCachePool(parent, position);
-                                int latestPosition = getLatestMaskedPosition(position - 1);
-                                if (latestPosition != -1) {
-                                    cacheView = cachePool.get(latestPosition);
-                                } else {
-                                    cacheView = null;
-                                }
-                                if (cacheView != null) {
-                                    if (leftDistance < left + cacheView.getWidth()) {
-                                        leftDatumLine = leftDistance - cacheView.getWidth();
-                                    }
-                                }
-                                break;
-                            }
+                    if (maskedExtension.isMaskedItem(position)) {
+                        if (leftDistance <= left) {
+                            cachePosition = position;
+                            cacheEdges.put(position, child.getTop());
+                            break;
                         } else {
-                            clearCachePool(parent, position);
-                            int latestPosition = getLatestMaskedPosition(position);
-                            if (latestPosition != -1) {
-                                cacheView = cachePool.get(latestPosition);
-                            } else {
-                                cacheView = null;
-                            }
-                            if (cacheView != null) {
-                                if (layoutManager instanceof GridLayoutManager) {
-                                    if (leftDistance > left + cacheView.getWidth()) {
-                                        break;
-                                    }
-                                } else if (layoutManager instanceof LinearLayoutManager) {
-                                    if (child.getRight() > left + cacheView.getWidth()) {
-                                        break;
-                                    }
-                                }
-                            } else {
-                                if (layoutManager instanceof GridLayoutManager) {
-                                    //next
-                                } else if (layoutManager instanceof LinearLayoutManager) {
-                                    break;
+                            cachePosition = getLatestMaskedPosition(position - 1);
+                            if (cachePosition != -1) {
+                                int cacheHeight = maskedExtension.getMaskedHeight(cachePosition);
+                                if (leftDistance < left + cacheHeight) {
+                                    leftDatumLine = leftDistance - cacheHeight;
                                 }
                             }
                         }
                     } else {
-                        if (maskedExtension.isMaskedItem(position)) {
-                            if (leftDistance <= left) {
-                                cachePool.append(position, child);
-                                cacheView = child;
-                                parent.getChildViewHolder(child).setIsRecyclable(false);
-                            }
-                        } else {
-                            if (layoutManager instanceof GridLayoutManager) {
-                                //next
-                            } else if (layoutManager instanceof LinearLayoutManager) {
-                                break;
-                            }
-                        }
+                        cachePosition = getLatestMaskedPosition(position - 1);
                     }
                 }
             }
 
-            if (cacheView != null && orientation != ORIENTATION_NONE) {
-                cacheView.setDrawingCacheEnabled(true);
-                cacheView.buildDrawingCache();
-                Bitmap bitmap = Bitmap.createBitmap(cacheView.getDrawingCache());
-                if (orientation == ORIENTATION_VERTICAL) {
-                    leftDatumLine = cacheView.getLeft();
-                } else if (orientation == ORIENTATION_HORIZONTAL) {
-                    topDatumLine = cacheView.getTop();
+            if (cachePosition != -1 && orientation != ORIENTATION_NONE) {
+                View cacheView = maskedExtension.getMaskedView(cachePosition);
+                if (cacheView != null) {
+                    int length = maskedExtension.getMaskedHeight(cachePosition);
+                    if (layoutManager instanceof GridLayoutManager) {
+                        GridLayoutManager gridLayoutManager = (GridLayoutManager) layoutManager;
+                        int spanCount = gridLayoutManager.getSpanCount();
+                        if (orientation == ORIENTATION_VERTICAL) {
+                            ViewUtil.measureAndLayout(cacheView, SizeUtil.getValidWidth(parent) / spanCount, length);
+                        } else if (orientation == ORIENTATION_HORIZONTAL) {
+                            ViewUtil.measureAndLayout(cacheView, length, SizeUtil.getValidHeight(parent) / spanCount);
+                        }
+                    } else if (layoutManager instanceof LinearLayoutManager) {
+                        if (orientation == ORIENTATION_VERTICAL) {
+                            ViewUtil.measureAndLayout(cacheView, SizeUtil.getValidWidth(parent), length);
+                        } else if (orientation == ORIENTATION_HORIZONTAL) {
+                            ViewUtil.measureAndLayout(cacheView, length, SizeUtil.getValidHeight(parent));
+                        }
+                    }
+                    Bitmap bitmap = Bitmap.createBitmap(cacheView.getWidth(), cacheView.getHeight(), Bitmap.Config.ARGB_8888);
+                    Canvas canvas = new Canvas(bitmap);
+                    canvas.drawColor(Color.WHITE);
+                    cacheView.draw(canvas);
+                    if (orientation == ORIENTATION_VERTICAL) {
+                        leftDatumLine = cacheEdges.get(cachePosition);
+                    } else if (orientation == ORIENTATION_HORIZONTAL) {
+                        topDatumLine = cacheEdges.get(cachePosition);
+                    }
+                    Log.v("ysj", topDatumLine + " topDatumLine" + " bitmap " + cacheView.getHeight());
+                    c.drawBitmap(bitmap, leftDatumLine, topDatumLine, null);
                 }
-                c.drawBitmap(bitmap, leftDatumLine, topDatumLine, null);
+            }
 
-                if (gestureDetector == null) {
-                    gestureDetector = new GestureDetector(parent.getContext(), onGestureListener);
-                    parent.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
-                        @Override
-                        public boolean onInterceptTouchEvent(@NonNull RecyclerView recyclerView, @NonNull MotionEvent motionEvent) {
-                            View childView = recyclerView.findChildViewUnder(motionEvent.getX(), motionEvent.getY());
-                            if (childView != null) {
-                                return gestureDetector.onTouchEvent(motionEvent);
-                            }
-                            return false;
+            if (gestureDetector == null) {
+                gestureDetector = new GestureDetector(parent.getContext(), onGestureListener);
+                parent.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
+                    @Override
+                    public boolean onInterceptTouchEvent(@NonNull RecyclerView recyclerView, @NonNull MotionEvent motionEvent) {
+                        View childView = recyclerView.findChildViewUnder(motionEvent.getX(), motionEvent.getY());
+                        if (childView != null) {
+                            return gestureDetector.onTouchEvent(motionEvent);
                         }
+                        return false;
+                    }
 
-                        @Override
-                        public void onTouchEvent(@NonNull RecyclerView recyclerView, @NonNull MotionEvent motionEvent) {
+                    @Override
+                    public void onTouchEvent(@NonNull RecyclerView recyclerView, @NonNull MotionEvent motionEvent) {
 
-                        }
+                    }
 
-                        @Override
-                        public void onRequestDisallowInterceptTouchEvent(boolean b) {
+                    @Override
+                    public void onRequestDisallowInterceptTouchEvent(boolean b) {
 
-                        }
-                    });
-                }
+                    }
+                });
             }
         }
     }
@@ -330,27 +259,6 @@ public class MaskedItemDecoration extends RecyclerView.ItemDecoration {
         return -1;
     }
 
-
-    /**
-     * 清除某个位置后缓存的view
-     *
-     * @param parent   RecyclerView
-     * @param position 当前view的position
-     */
-    private void clearCachePool(RecyclerView parent, int position) {
-        int size = cachePool.size();
-        for (int i = 0; i < size; i++) {
-            int key = cachePool.keyAt(i);
-            if (key >= position) {
-                View child = cachePool.get(key);
-                if (child != null) {
-                    parent.getChildViewHolder(child).setIsRecyclable(true);
-                }
-                cachePool.remove(key);
-            }
-        }
-    }
-
     /**
      * 拦截并处理item的点击事件
      *
@@ -358,35 +266,57 @@ public class MaskedItemDecoration extends RecyclerView.ItemDecoration {
      * @return 是否将其拦截消费掉
      */
     private boolean onTouchEvent(MotionEvent event) {
-        if (cacheView != null) {
-            float x = event.getX();
-            float y = event.getY();
-            if (x > leftDatumLine && x < leftDatumLine + cacheView.getWidth()
-                    && y > topDatumLine && y < topDatumLine + cacheView.getHeight()) {
+        if (cachePosition != -1) {
+            View maskedView = maskedExtension.getMaskedView(cachePosition);
+            if (maskedView != null) {
+                float x = event.getX();
+                float y = event.getY();
 
-                if (onMaskedViewClickListener != null) {
-                    List<View> children = ViewUtil.getChildViewWithId(cacheView);
-                    for (int i = 0; i < children.size(); i++) {
-                        View child = children.get(i);
-                        int top = child.getTop() + topDatumLine;
-                        int bottom = child.getBottom() + topDatumLine;
-                        int left = child.getLeft() + leftDatumLine;
-                        int right = child.getRight() + leftDatumLine;
-                        if (x > left && x < right && y > top && y < bottom) {
-                            onMaskedViewClickListener.onMaskedViewClick(child, recyclerView.getChildAdapterPosition(cacheView));
-                            return true;
+                int length = maskedExtension.getMaskedHeight(cachePosition);
+                reMeasureAndLayout(maskedView, length);
+                if (x > leftDatumLine && x < leftDatumLine + maskedView.getWidth() && y > topDatumLine && y < topDatumLine + maskedView.getHeight()) {
+                    if (onMaskedViewClickListener != null) {
+                        List<View> children = ViewUtil.getChildViewWithId(maskedView);
+                        for (int i = 0; i < children.size(); i++) {
+                            View child = children.get(i);
+                            int top = child.getTop() + topDatumLine;
+                            int bottom = child.getBottom() + topDatumLine;
+                            int left = child.getLeft() + leftDatumLine;
+                            int right = child.getRight() + leftDatumLine;
+                            if (x > left && x < right && y > top && y < bottom) {
+                                onMaskedViewClickListener.onMaskedViewClick(child, cachePosition);
+                                return true;
+                            }
                         }
                     }
+                    if (onMaskedItemClickListener != null) {
+                        onMaskedItemClickListener.onMaskedItemClick(cachePosition);
+                    }
+                    return true;
+                } else {
+                    return false;
                 }
-                if (onMaskedItemClickListener != null) {
-                    onMaskedItemClickListener.onMaskedItemClick(recyclerView.getChildAdapterPosition(cacheView));
-                }
-                return true;
-            } else {
-                return false;
             }
         }
         return false;
+    }
+
+    private void reMeasureAndLayout(View view, int length) {
+        RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
+        if (layoutManager instanceof GridLayoutManager) {
+            int spanCount = ((GridLayoutManager) layoutManager).getSpanCount();
+            if (orientation == ORIENTATION_VERTICAL) {
+                ViewUtil.measureAndLayout(view, SizeUtil.getValidWidth(recyclerView) / spanCount, length);
+            } else if (orientation == ORIENTATION_HORIZONTAL) {
+                ViewUtil.measureAndLayout(view, length, SizeUtil.getValidHeight(recyclerView) / spanCount);
+            }
+        } else if (layoutManager instanceof LinearLayoutManager) {
+            if (orientation == ORIENTATION_VERTICAL) {
+                ViewUtil.measureAndLayout(view, SizeUtil.getValidWidth(recyclerView), length);
+            } else if (orientation == ORIENTATION_HORIZONTAL) {
+                ViewUtil.measureAndLayout(view, length, SizeUtil.getValidHeight(recyclerView));
+            }
+        }
     }
 
     public static class Builder {

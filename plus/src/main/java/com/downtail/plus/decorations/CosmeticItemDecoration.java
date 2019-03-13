@@ -14,6 +14,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.downtail.plus.extensions.CosmeticExtension;
+import com.downtail.plus.utils.SizeUtil;
 import com.downtail.plus.utils.ViewUtil;
 
 import java.util.List;
@@ -109,6 +110,7 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
         this.cosmeticExtension = cosmeticExtension;
         this.cacheEdges = new SparseIntArray();
         this.cachePosition = -1;
+        this.orientation = ORIENTATION_NONE;
     }
 
     @Override
@@ -127,19 +129,19 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
                         int spanCount = gridLayoutManager.getSpanCount();
                         orientation = gridLayoutManager.getOrientation();
                         if (orientation == ORIENTATION_VERTICAL) {
-                            measureAndLayout(cosmeticView, getValidWidth(parent) / spanCount, length);
+                            ViewUtil.measureAndLayout(cosmeticView, SizeUtil.getValidWidth(parent) / spanCount, length);
                             outRect.top = cosmeticView.getHeight();
                         } else if (orientation == ORIENTATION_HORIZONTAL) {
-                            measureAndLayout(cosmeticView, length, getValidHeight(parent) / spanCount);
+                            ViewUtil.measureAndLayout(cosmeticView, length, SizeUtil.getValidHeight(parent) / spanCount);
                             outRect.left = cosmeticView.getWidth();
                         }
                     } else if (layoutManager instanceof LinearLayoutManager) {
                         orientation = ((LinearLayoutManager) layoutManager).getOrientation();
                         if (orientation == ORIENTATION_VERTICAL) {
-                            measureAndLayout(cosmeticView, getValidWidth(parent), length);
+                            ViewUtil.measureAndLayout(cosmeticView, SizeUtil.getValidWidth(parent), length);
                             outRect.top = cosmeticView.getHeight();
                         } else if (orientation == ORIENTATION_HORIZONTAL) {
-                            measureAndLayout(cosmeticView, length, getValidHeight(parent));
+                            ViewUtil.measureAndLayout(cosmeticView, length, SizeUtil.getValidHeight(parent));
                             outRect.left = cosmeticView.getWidth();
                         }
                     } else {
@@ -185,6 +187,7 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
                         if (topDistance - distance <= top) {
                             cachePosition = position;
                             cacheEdges.put(position, child.getLeft());
+                            break;
                         } else {
                             cachePosition = getLatestCosmeticPosition(position - 1);
                             if (cachePosition != -1) {
@@ -194,6 +197,8 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
                                 }
                             }
                         }
+                    } else {
+                        cachePosition = getLatestCosmeticPosition(position - 1);
                     }
 
                     if (cosmeticExtension.isCosmeticItem(position) && cachePosition != position) {
@@ -203,9 +208,9 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
                             if (layoutManager instanceof GridLayoutManager) {
                                 GridLayoutManager gridLayoutManager = (GridLayoutManager) layoutManager;
                                 int spanCount = gridLayoutManager.getSpanCount();
-                                measureAndLayout(cosmeticView, getValidWidth(parent) / spanCount, length);
+                                ViewUtil.measureAndLayout(cosmeticView, SizeUtil.getValidWidth(parent) / spanCount, length);
                             } else if (layoutManager instanceof LinearLayoutManager) {
-                                measureAndLayout(cosmeticView, getValidWidth(parent), length);
+                                ViewUtil.measureAndLayout(cosmeticView, SizeUtil.getValidWidth(parent), length);
                             }
                             Bitmap bitmap = Bitmap.createBitmap(cosmeticView.getWidth(), cosmeticView.getHeight(), Bitmap.Config.ARGB_8888);
                             Canvas canvas = new Canvas(bitmap);
@@ -221,6 +226,7 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
                         if (leftDistance - distance <= left) {
                             cachePosition = position;
                             cacheEdges.put(position, child.getTop());
+                            break;
                         } else {
                             cachePosition = getLatestCosmeticPosition(position - 1);
                             if (cachePosition != -1) {
@@ -230,7 +236,10 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
                                 }
                             }
                         }
+                    } else {
+                        cachePosition = getLatestCosmeticPosition(position - 1);
                     }
+
                     if (cosmeticExtension.isCosmeticItem(position) && cachePosition != position) {
                         View cosmeticView = cosmeticExtension.getCosmeticView(position);
                         if (cosmeticView != null) {
@@ -238,9 +247,9 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
                             if (layoutManager instanceof GridLayoutManager) {
                                 GridLayoutManager gridLayoutManager = (GridLayoutManager) layoutManager;
                                 int spanCount = gridLayoutManager.getSpanCount();
-                                measureAndLayout(cosmeticView, length, getValidHeight(parent) / spanCount);
+                                ViewUtil.measureAndLayout(cosmeticView, length, SizeUtil.getValidHeight(parent) / spanCount);
                             } else if (layoutManager instanceof LinearLayoutManager) {
-                                measureAndLayout(cosmeticView, length, getValidHeight(parent));
+                                ViewUtil.measureAndLayout(cosmeticView, length, SizeUtil.getValidHeight(parent));
                             }
                             Bitmap bitmap = Bitmap.createBitmap(cosmeticView.getWidth(), cosmeticView.getHeight(), Bitmap.Config.ARGB_8888);
                             Canvas canvas = new Canvas(bitmap);
@@ -259,15 +268,15 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
                         GridLayoutManager gridLayoutManager = (GridLayoutManager) layoutManager;
                         int spanCount = gridLayoutManager.getSpanCount();
                         if (orientation == ORIENTATION_VERTICAL) {
-                            measureAndLayout(cacheView, getValidWidth(parent) / spanCount, length);
+                            ViewUtil.measureAndLayout(cacheView, SizeUtil.getValidWidth(parent) / spanCount, length);
                         } else if (orientation == ORIENTATION_HORIZONTAL) {
-                            measureAndLayout(cacheView, length, getValidHeight(parent) / spanCount);
+                            ViewUtil.measureAndLayout(cacheView, length, SizeUtil.getValidHeight(parent) / spanCount);
                         }
                     } else if (layoutManager instanceof LinearLayoutManager) {
                         if (orientation == ORIENTATION_VERTICAL) {
-                            measureAndLayout(cacheView, getValidWidth(parent), length);
+                            ViewUtil.measureAndLayout(cacheView, SizeUtil.getValidWidth(parent), length);
                         } else if (orientation == ORIENTATION_HORIZONTAL) {
-                            measureAndLayout(cacheView, length, getValidHeight(parent));
+                            ViewUtil.measureAndLayout(cacheView, length, SizeUtil.getValidHeight(parent));
                         }
                     }
                     Bitmap bitmap = Bitmap.createBitmap(cacheView.getWidth(), cacheView.getHeight(), Bitmap.Config.ARGB_8888);
@@ -280,50 +289,48 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
                         topDatumLine = cacheEdges.get(cachePosition);
                     }
                     c.drawBitmap(bitmap, leftDatumLine, topDatumLine, null);
-
-                    if (gestureDetector == null) {
-                        gestureDetector = new GestureDetector(parent.getContext(), onGestureListener);
-                        parent.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
-                            @Override
-                            public boolean onInterceptTouchEvent(@NonNull RecyclerView recyclerView, @NonNull MotionEvent motionEvent) {
-                                return gestureDetector.onTouchEvent(motionEvent);
-                            }
-
-                            @Override
-                            public void onTouchEvent(@NonNull RecyclerView recyclerView, @NonNull MotionEvent motionEvent) {
-
-                            }
-
-                            @Override
-                            public void onRequestDisallowInterceptTouchEvent(boolean b) {
-
-                            }
-                        });
-                    }
                 }
+            }
+
+            if (gestureDetector == null) {
+                gestureDetector = new GestureDetector(parent.getContext(), onGestureListener);
+                parent.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
+                    @Override
+                    public boolean onInterceptTouchEvent(@NonNull RecyclerView recyclerView, @NonNull MotionEvent motionEvent) {
+                        return gestureDetector.onTouchEvent(motionEvent);
+                    }
+
+                    @Override
+                    public void onTouchEvent(@NonNull RecyclerView recyclerView, @NonNull MotionEvent motionEvent) {
+
+                    }
+
+                    @Override
+                    public void onRequestDisallowInterceptTouchEvent(boolean b) {
+
+                    }
+                });
             }
         }
     }
 
-    /**
-     * 指定宽高不可见view的测量和布局过程
-     *
-     * @param view
-     * @param width
-     * @param height
-     */
-    private void measureAndLayout(View view, int width, int height) {
-        view.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
-                View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY));
-        view.layout(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight());
-    }
 
-    private int getValidWidth(RecyclerView parent) {
-        return (parent.getRight() - parent.getPaddingRight()) - (parent.getLeft() + parent.getPaddingLeft());
-    }
-
-    private int getValidHeight(RecyclerView parent) {
-        return (parent.getBottom() - parent.getPaddingBottom()) - (parent.getTop() + parent.getPaddingTop());
+    private void reMeasureAndLayout(View view, int length) {
+        RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
+        if (layoutManager instanceof GridLayoutManager) {
+            int spanCount = ((GridLayoutManager) layoutManager).getSpanCount();
+            if (orientation == ORIENTATION_VERTICAL) {
+                ViewUtil.measureAndLayout(view, SizeUtil.getValidWidth(recyclerView) / spanCount, length);
+            } else if (orientation == ORIENTATION_HORIZONTAL) {
+                ViewUtil.measureAndLayout(view, length, SizeUtil.getValidHeight(recyclerView) / spanCount);
+            }
+        } else if (layoutManager instanceof LinearLayoutManager) {
+            if (orientation == ORIENTATION_VERTICAL) {
+                ViewUtil.measureAndLayout(view, SizeUtil.getValidWidth(recyclerView), length);
+            } else if (orientation == ORIENTATION_HORIZONTAL) {
+                ViewUtil.measureAndLayout(view, length, SizeUtil.getValidHeight(recyclerView));
+            }
+        }
     }
 
     private int getLatestCosmeticPosition(int position) {
@@ -348,65 +355,57 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
                 int position = recyclerView.getChildAdapterPosition(view);
                 if (cosmeticExtension.isCosmeticItem(position)) {
                     int length = cosmeticExtension.getCosmeticHeight(position);
-                    int bottom = view.getTop();
-                    int top = bottom - length;
+                    int bottom = view.getBottom();
+                    int top = view.getTop();
                     int left = view.getLeft();
                     int right = view.getRight();
                     if (orientation == ORIENTATION_VERTICAL) {
-
+                        bottom = view.getTop();
+                        top = bottom - length;
                     } else if (orientation == ORIENTATION_HORIZONTAL) {
-                        bottom = view.getBottom();
-                        top = view.getTop();
-                        right = view.getRight();
-                        left = right - left;
+                        right = view.getLeft();
+                        left = right - length;
                     }
                     if (x > left && x < right && y > top && y < bottom) {
                         View cosmeticView = cosmeticExtension.getCosmeticView(position);
                         if (cosmeticView != null) {
-                            if (onCosmeticViewClickListener != null) {
-                                List<View> children = ViewUtil.getChildViewWithId(cosmeticView);
-                                for (int j = 0; j < children.size(); j++) {
-                                    View subView = children.get(j);
-                                    if (x > left + subView.getLeft() && x < right - subView.getRight() && y > top + subView.getTop() && y < bottom - subView.getBottom()) {
-                                        onCosmeticViewClickListener.onCosmeticViewClick(subView, position);
-                                        return true;
-                                    }
-                                }
-                            }
-                            if (onCosmeticItemClickListener != null) {
-                                onCosmeticItemClickListener.onCosmeticItemClick(position);
-                            }
-                            return true;
+                            return onChildTouchEvent(cosmeticView, length, x, y, left, top, position);
                         }
                     }
                 }
             }
+            return false;
         } else {
             if (cachePosition != -1) {
                 View cosmeticView = cosmeticExtension.getCosmeticView(cachePosition);
-                int length = cosmeticExtension.getCosmeticHeight(cachePosition);
-                RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
-                if (layoutManager instanceof GridLayoutManager) {
-                    int spanCount = ((GridLayoutManager) layoutManager).getSpanCount();
-                    if (orientation == ORIENTATION_VERTICAL) {
-                        measureAndLayout(cosmeticView, getValidWidth(recyclerView) / spanCount, length);
-                    } else if (orientation == ORIENTATION_HORIZONTAL) {
-                        measureAndLayout(cosmeticView, length, getValidHeight(recyclerView) / spanCount);
+                if (cosmeticView != null) {
+                    int length = cosmeticExtension.getCosmeticHeight(cachePosition);
+                    reMeasureAndLayout(cosmeticView, length);
+                    if (x > leftDatumLine && x < leftDatumLine + cosmeticView.getWidth() && y > topDatumLine && y < topDatumLine + cosmeticView.getHeight()) {
+                        return onChildTouchEvent(cosmeticView, length, x, y, leftDatumLine, topDatumLine, cachePosition);
                     }
-                } else if (layoutManager instanceof LinearLayoutManager) {
-                    if (orientation == ORIENTATION_VERTICAL) {
-                        measureAndLayout(cosmeticView, getValidWidth(recyclerView), length);
-                    } else if (orientation == ORIENTATION_HORIZONTAL) {
-                        measureAndLayout(cosmeticView, length, getValidHeight(recyclerView));
-                    }
-                }
-                if (x > leftDatumLine && x < leftDatumLine + cosmeticView.getWidth() && y > topDatumLine && y < topDatumLine + cosmeticView.getHeight()) {
-                    return true;
                 }
             }
             return false;
         }
-        return false;
+    }
+
+    private boolean onChildTouchEvent(View view, int length, float x, float y, int left, int top, int position) {
+        reMeasureAndLayout(view, length);
+        if (onCosmeticViewClickListener != null) {
+            List<View> children = ViewUtil.getChildViewWithId(view);
+            for (int j = 0; j < children.size(); j++) {
+                View subView = children.get(j);
+                if (x > left + subView.getLeft() && x < left + subView.getRight() && y > top + subView.getTop() && y < top + subView.getBottom()) {
+                    onCosmeticViewClickListener.onCosmeticViewClick(subView, position);
+                    return true;
+                }
+            }
+        }
+        if (onCosmeticItemClickListener != null) {
+            onCosmeticItemClickListener.onCosmeticItemClick(position);
+        }
+        return true;
     }
 
     public static class Builder {

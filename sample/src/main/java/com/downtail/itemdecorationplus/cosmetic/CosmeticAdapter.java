@@ -1,4 +1,4 @@
-package com.downtail.itemdecorationplus;
+package com.downtail.itemdecorationplus.cosmetic;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.downtail.itemdecorationplus.R;
 import com.downtail.plus.extensions.CosmeticExtension;
 
 import java.util.List;
@@ -58,7 +59,7 @@ public class CosmeticAdapter extends RecyclerView.Adapter<CosmeticAdapter.Cosmet
 
     @Override
     public boolean isCosmeticItem(int position) {
-        return position % 7 == 1 || position == 2||position==7;
+        return position % 7 == 1;
     }
 
     @Override
