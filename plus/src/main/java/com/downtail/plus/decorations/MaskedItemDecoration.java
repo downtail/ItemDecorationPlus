@@ -187,10 +187,11 @@ public class MaskedItemDecoration extends RecyclerView.ItemDecoration {
                     if (layoutManager instanceof GridLayoutManager) {
                         GridLayoutManager gridLayoutManager = (GridLayoutManager) layoutManager;
                         int spanCount = gridLayoutManager.getSpanCount();
+                        int spanSize = gridLayoutManager.getSpanSizeLookup().getSpanSize(cachePosition);
                         if (orientation == ORIENTATION_VERTICAL) {
-                            ViewUtil.measureAndLayout(cacheView, SizeUtil.getValidWidth(parent) / spanCount, length);
+                            ViewUtil.measureAndLayout(cacheView, SizeUtil.getValidWidth(parent) * spanSize / spanCount, length);
                         } else if (orientation == ORIENTATION_HORIZONTAL) {
-                            ViewUtil.measureAndLayout(cacheView, length, SizeUtil.getValidHeight(parent) / spanCount);
+                            ViewUtil.measureAndLayout(cacheView, length, SizeUtil.getValidHeight(parent) * spanSize / spanCount);
                         }
                     } else if (layoutManager instanceof LinearLayoutManager) {
                         if (orientation == ORIENTATION_VERTICAL) {
@@ -301,11 +302,13 @@ public class MaskedItemDecoration extends RecyclerView.ItemDecoration {
     private void reMeasureAndLayout(View view, int length) {
         RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
         if (layoutManager instanceof GridLayoutManager) {
-            int spanCount = ((GridLayoutManager) layoutManager).getSpanCount();
+            GridLayoutManager gridLayoutManager = (GridLayoutManager) layoutManager;
+            int spanCount = gridLayoutManager.getSpanCount();
+            int spanSize = gridLayoutManager.getSpanSizeLookup().getSpanSize(cachePosition);
             if (orientation == ORIENTATION_VERTICAL) {
-                ViewUtil.measureAndLayout(view, SizeUtil.getValidWidth(recyclerView) / spanCount, length);
+                ViewUtil.measureAndLayout(view, SizeUtil.getValidWidth(recyclerView) * spanSize / spanCount, length);
             } else if (orientation == ORIENTATION_HORIZONTAL) {
-                ViewUtil.measureAndLayout(view, length, SizeUtil.getValidHeight(recyclerView) / spanCount);
+                ViewUtil.measureAndLayout(view, length, SizeUtil.getValidHeight(recyclerView) * spanSize / spanCount);
             }
         } else if (layoutManager instanceof LinearLayoutManager) {
             if (orientation == ORIENTATION_VERTICAL) {

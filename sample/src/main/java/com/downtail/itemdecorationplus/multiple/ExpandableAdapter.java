@@ -1,4 +1,4 @@
-package com.downtail.itemdecorationplus.brvah;
+package com.downtail.itemdecorationplus.multiple;
 
 import android.view.LayoutInflater;
 import android.view.View;

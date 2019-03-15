@@ -6,13 +6,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
-import com.downtail.itemdecorationplus.brvah.ExpandableActivity;
 import com.downtail.itemdecorationplus.cosmetic.CosmeticActivity;
 import com.downtail.itemdecorationplus.masked.MaskedActivity;
+import com.downtail.itemdecorationplus.mix.MixActivity;
+import com.downtail.itemdecorationplus.multiple.ExpandableActivity;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    Button btnMasked, btnCosmetic, btnExpand;
+    Button btnMasked, btnCosmetic, btnExpand,btnMix;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +26,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnCosmetic.setOnClickListener(this);
         btnExpand = findViewById(R.id.btn_expand);
         btnExpand.setOnClickListener(this);
+        btnMix = findViewById(R.id.btn_mix);
+        btnMix.setOnClickListener(this);
     }
 
     @Override
@@ -38,6 +41,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.btn_expand:
                 startActivity(new Intent(this, ExpandableActivity.class));
+                break;
+            case R.id.btn_mix:
+                startActivity(new Intent(this, MixActivity.class));
                 break;
         }
     }

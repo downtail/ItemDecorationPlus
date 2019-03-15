@@ -21,7 +21,9 @@
 
         <activity android:name=".cosmetic.CosmeticActivity" />
 
-        <activity android:name=".brvah.ExpandableActivity" />
+        <activity android:name=".multiple.ExpandableActivity" />
+
+        <activity android:name=".mix.MixActivity"/>
 
     </application>
 
