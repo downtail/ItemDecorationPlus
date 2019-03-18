@@ -51,7 +51,7 @@ public class MaskedAdapter extends RecyclerView.Adapter<MaskedAdapter.SampleHold
 
 4. 为RecyclerView添加ItemDecoration
 
-MaskedItemDecoration maskedItemDecoration = MaskedItemDecoration.Builder
+```MaskedItemDecoration maskedItemDecoration = MaskedItemDecoration.Builder
                 .with(maskedAdapter)
                 .setOnMaskedItemClickListener(new MaskedItemDecoration.OnMaskedItemClickListener() {
                     @Override
@@ -69,7 +69,7 @@ MaskedItemDecoration maskedItemDecoration = MaskedItemDecoration.Builder
                 })
                 .build();
 
-        rvSample.addItemDecoration(maskedItemDecoration);
+        rvSample.addItemDecoration(maskedItemDecoration);```
 
 
 
