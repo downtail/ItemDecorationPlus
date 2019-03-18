@@ -67,11 +67,11 @@ MaskedItemDecoration maskedItemDecoration = MaskedItemDecoration.Builder
                 .with(maskedAdapter)
                 .setOnMaskedItemClickListener(new MaskedItemDecoration.OnMaskedItemClickListener() {
                     @Override
-                    public void onMaskedItemClick(int position) {//监听粘性item中子view点击事件
+                    public void onMaskedItemClick(int position) {//监听粘性item点击事件
                         Toast.makeText(MaskedActivity.this, "你点击了item " + position, Toast.LENGTH_SHORT).show();
                     }
                 })
-                .setOnMaskedViewClickListener(new MaskedItemDecoration.OnMaskedViewClickListener() {//监听粘性item点击事件
+                .setOnMaskedViewClickListener(new MaskedItemDecoration.OnMaskedViewClickListener() {//监听粘性item中子view点击事件
                     @Override
                     public void onMaskedViewClick(View view, int position) {
                         if (view.getId() == R.id.tv_sample) {
