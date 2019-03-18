@@ -45,7 +45,10 @@ public class MaskedAdapter extends RecyclerView.Adapter<MaskedAdapter.SampleHold
 
 ```
 
-  public interface MaskedExtension {
+
+```
+
+public interface MaskedExtension {
 
     //返回true则需要实现粘性
     boolean isMaskedItem(int position);
@@ -57,6 +60,8 @@ public class MaskedAdapter extends RecyclerView.Adapter<MaskedAdapter.SampleHold
     View getMaskedView(int position);
 
   }
+  
+```
 
 
 4. 为RecyclerView添加ItemDecoration
