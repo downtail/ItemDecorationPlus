@@ -2,7 +2,8 @@
 
 ### 效果预览
 
-<img src="https://github.com/downtail/ItemDecorationPlus/blob/branch_dev/screenshots/masked.gif" alt="image"/>
+<img src="https://github.com/downtail/ItemDecorationPlus/blob/branch_dev/screenshots/masked.gif" alt="image"
+width="160" height="320"/>
 
 
 ### 参考
