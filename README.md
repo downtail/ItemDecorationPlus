@@ -27,8 +27,12 @@ allprojects {
 }
 ```
   
-2. 添加依赖  
-implementation 'com.github.downtail:ItemDecorationPlus:0.1.2'  
+2. 添加依赖
+
+```
+implementation 'com.github.downtail:ItemDecorationPlus:0.1.2'
+
+```
 
 3. 实现接口
 ```
