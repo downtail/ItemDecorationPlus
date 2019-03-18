@@ -2,10 +2,8 @@
 
 ### 效果预览
 
+<img src="https://github.com/downtail/ItemDecorationPlus/blob/branch_dev/screenshots/masked.gif" alt="image"/>
 
-### apk下载
-
-![image](https://github.com/downtail/ItemDecorationPlus/blob/master/screenshots/masked.gif)
 
 ### 参考
 
