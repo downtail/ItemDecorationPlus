@@ -19,14 +19,13 @@ width="160" height="320"/>
 
 1. 添加jitpack仓库  
 
-`allprojects {  
-
+allprojects {  
     repositories {
         google()
         jcenter()
         maven { url "https://jitpack.io" }
     }
-}`  
+}
   
 2. 添加依赖  
 implementation 'com.github.downtail:ItemDecorationPlus:0.1.2'  
@@ -52,7 +51,7 @@ public class MaskedAdapter extends RecyclerView.Adapter<MaskedAdapter.SampleHold
 
 4. 为RecyclerView添加ItemDecoration
 
-`MaskedItemDecoration maskedItemDecoration = MaskedItemDecoration.Builder
+MaskedItemDecoration maskedItemDecoration = MaskedItemDecoration.Builder
                 .with(maskedAdapter)
                 .setOnMaskedItemClickListener(new MaskedItemDecoration.OnMaskedItemClickListener() {
                     @Override
@@ -70,7 +69,7 @@ public class MaskedAdapter extends RecyclerView.Adapter<MaskedAdapter.SampleHold
                 })
                 .build();
 
-        rvSample.addItemDecoration(maskedItemDecoration);`
+        rvSample.addItemDecoration(maskedItemDecoration);
 
 
 
