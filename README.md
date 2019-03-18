@@ -19,7 +19,8 @@ width="160" height="320"/>
 
 1. 添加jitpack仓库  
 
-`allprojects {
+`allprojects {  
+
     repositories {
         google()
         jcenter()
