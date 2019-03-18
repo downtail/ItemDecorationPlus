@@ -19,26 +19,31 @@ width="160" height="320"/>
 
 1. 添加jitpack仓库  
 ```
+
 allprojects {  
     repositories {
         ...
         maven { url "https://jitpack.io" }
     }
 }
+
 ```
   
 2. 添加依赖
 
 ```
+
 implementation 'com.github.downtail:ItemDecorationPlus:0.1.2'
 
 ```
 
 3. 实现接口
+
 ```
 public class MaskedAdapter extends RecyclerView.Adapter<MaskedAdapter.SampleHolder> implements MaskedExtension{}
 
 ```
+
   public interface MaskedExtension {
 
     //返回true则需要实现粘性
@@ -54,7 +59,9 @@ public class MaskedAdapter extends RecyclerView.Adapter<MaskedAdapter.SampleHold
 
 
 4. 为RecyclerView添加ItemDecoration
+
 ```
+
 MaskedItemDecoration maskedItemDecoration = MaskedItemDecoration.Builder
                 .with(maskedAdapter)
                 .setOnMaskedItemClickListener(new MaskedItemDecoration.OnMaskedItemClickListener() {
@@ -74,6 +81,7 @@ MaskedItemDecoration maskedItemDecoration = MaskedItemDecoration.Builder
                 .build();
 
         rvSample.addItemDecoration(maskedItemDecoration);
+
 ```
 
 
@@ -82,3 +90,5 @@ MaskedItemDecoration maskedItemDecoration = MaskedItemDecoration.Builder
 ### 参考
 
 [StickyDecoration](https://github.com/Gavin-ZYX/StickyDecoration)
+
+
