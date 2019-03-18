@@ -31,10 +31,10 @@ allprojects {
 implementation 'com.github.downtail:ItemDecorationPlus:0.1.2'  
 
 3. 实现接口
-
+```
 public class MaskedAdapter extends RecyclerView.Adapter<MaskedAdapter.SampleHolder> implements MaskedExtension{}
 
-  
+```
   public interface MaskedExtension {
 
     //返回true则需要实现粘性
@@ -46,7 +46,7 @@ public class MaskedAdapter extends RecyclerView.Adapter<MaskedAdapter.SampleHold
     //自定义粘性view的布局
     View getMaskedView(int position);
 
-}
+  }
 
 
 4. 为RecyclerView添加ItemDecoration
