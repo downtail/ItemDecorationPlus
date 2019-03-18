@@ -17,7 +17,8 @@ width="160" height="320"/>
 
 ### 使用方式
 
-1. 添加jitpack仓库
+1. 添加jitpack仓库  
+
 `allprojects {
     repositories {
         google()
