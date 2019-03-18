@@ -40,6 +40,7 @@ implementation 'com.github.downtail:ItemDecorationPlus:0.1.2'
 3. 实现接口
 
 ```
+
 public class MaskedAdapter extends RecyclerView.Adapter<MaskedAdapter.SampleHolder> implements MaskedExtension{}
 
 ```
