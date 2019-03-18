@@ -70,7 +70,7 @@ MaskedItemDecoration maskedItemDecoration = MaskedItemDecoration.Builder
                 .build();
 
         rvSample.addItemDecoration(maskedItemDecoration);
-        ```
+```
 
 
 
