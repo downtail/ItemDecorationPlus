@@ -5,7 +5,7 @@
 
 ### apk下载
 
-![](screenshots/masked.gif)
+![image](https://github.com/downtail/ItemDecorationPlus/blob/master/screenshots/masked.gif)
 
 ### 参考
 
