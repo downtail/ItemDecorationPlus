@@ -18,14 +18,14 @@ width="160" height="320"/>
 ### 使用方式
 
 1. 添加jitpack仓库  
-
+```
 allprojects {  
     repositories {
-        google()
-        jcenter()
+        ...
         maven { url "https://jitpack.io" }
     }
 }
+```
   
 2. 添加依赖  
 implementation 'com.github.downtail:ItemDecorationPlus:0.1.2'  
