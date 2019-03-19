@@ -10,6 +10,7 @@
 
 <img src="https://i.loli.net/2019/03/19/5c90544436c6a.gif" width="240" height="480" alt="cosmetic">
 
+[![cosmetic.gif](https://i.postimg.cc/7Z4Bp0yM/cosmetic.gif)](https://postimg.cc/0btdS6jb)
 
 
 ### 使用方式
