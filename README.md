@@ -2,7 +2,9 @@
 
 ### 介绍
 
-<p>在工作中多次遇到需要为RecyclerView设置悬浮或者说粘性的头部，于是有了这个东西。目前有MaskedItemDecoration(使item本身可悬浮)和CosmeticItemDecoration(在item顶部悬浮一个额外的view)，并且已经适用于LinearLayoutManager和GridLayoutManager(网格布局支持setSpanSizeLookup()，看起来像线性和网格混用)。还有一点非常重要的是，如果搭配[BaseRecyclerViewAdapterHelper](https://github.com/CymChad/BaseRecyclerViewAdapterHelper)可以实现更加丰富的效果，比如类似QQ好友列表的分组悬浮以及其他一些需求。</p>
+<p>在工作中多次遇到需要为RecyclerView设置悬浮或者说粘性的头部，于是有了这个东西。目前有MaskedItemDecoration(使item本身可悬浮)和CosmeticItemDecoration(在item顶部悬浮一个额外的view)，并且已经适用于LinearLayoutManager和GridLayoutManager(网格布局支持setSpanSizeLookup()，看起来像线性和网格混用)。还有一点非常重要的是，如果搭配
+    [BaseRecyclerViewAdapterHelper](https://github.com/CymChad/BaseRecyclerViewAdapterHelper)
+可以实现更加丰富的效果，比如类似QQ好友列表的分组悬浮以及其他一些需求。</p>
 
 ### 效果预览
 
