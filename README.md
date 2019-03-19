@@ -8,7 +8,21 @@
 
 ### 效果预览
 
-<img src="https://i.loli.net/2019/03/19/5c90544436c6a.gif" width="240" height="480" alt="cosmetic">
+
+
+[普通布局item本身悬浮](https://s2.ax1x.com/2019/03/19/AnRb9A.gif)
+
+
+
+[普通布局item顶部悬浮](https://s2.ax1x.com/2019/03/19/AnWVBT.gif)
+
+
+
+[分组菜单悬浮](https://s2.ax1x.com/2019/03/19/AnWGDK.gif)
+
+
+
+[支持GridLayoutManger.setSpanSizeLookup()](https://s2.ax1x.com/2019/03/19/AnWU4H.gif)
 
 
 
