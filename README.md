@@ -91,7 +91,7 @@ MaskedItemDecoration maskedItemDecoration = MaskedItemDecoration.Builder
      
 
 ### 建议和意见  
-如果有什么问题可以issue或者联系我。
+如果有什么问题或者新的想法可以issue或者联系我。
 
 
 ### 参考
