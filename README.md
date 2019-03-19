@@ -85,6 +85,11 @@ MaskedItemDecoration maskedItemDecoration = MaskedItemDecoration.Builder
 
 ```
 
+5. 以上为MaskedItemDecoration使用，CosmeticItemDecoration用法相同。  
+  
+     
+     
+
 ### 建议和意见  
 如果有什么问题可以issue或者联系我。
 
