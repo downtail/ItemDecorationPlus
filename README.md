@@ -18,6 +18,13 @@
 
 
 
+[分组菜单悬浮](https://s2.ax1x.com/2019/03/19/AnWGDK.gif)
+
+
+
+[支持GridLayoutManger.setSpanSizeLookup()](https://s2.ax1x.com/2019/03/19/AnWU4H.gif)
+
+
 
 ### 使用方式
 
