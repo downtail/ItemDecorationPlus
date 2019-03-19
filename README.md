@@ -8,6 +8,8 @@
 
 ### 效果预览
 
+<img src="https://i.loli.net/2019/03/19/5c90544436c6a.gif" width="240" height="480" alt="cosmetic">
+
 
 
 ### 使用方式
