@@ -10,7 +10,7 @@
 
 <img src="https://i.loli.net/2019/03/19/5c90544436c6a.gif" width="240" height="480" alt="cosmetic">
 
-<img src="https://s2.ax1x.com/2019/03/19/AnRb9A.gif" alt="masked">
+[普通线性布局item本身悬浮](https://s2.ax1x.com/2019/03/19/AnRb9A.gif)
 
 ### 使用方式
 
