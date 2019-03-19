@@ -32,7 +32,7 @@ implementation 'com.github.downtail:ItemDecorationPlus:0.1.2'
 
 ```
 
-3. 实现接口
+3. 实现接口(让adapter来实现)
 
 ```
 
@@ -85,7 +85,8 @@ MaskedItemDecoration maskedItemDecoration = MaskedItemDecoration.Builder
 
 ```
 
-
+### 建议和意见  
+如果有什么问题可以issue或者联系我。
 
 
 ### 参考
