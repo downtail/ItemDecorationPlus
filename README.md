@@ -10,7 +10,7 @@
 
 <img src="https://i.loli.net/2019/03/19/5c90544436c6a.gif" width="240" height="480" alt="cosmetic">
 
-<img src="http://t1.aixinxi.net/o_1d69va5be3eo1fjdencav1e3ta.gif" />
+<img src="https://t1.aixinxi.net/o_1d69va5be3eo1fjdencav1e3ta.gif" />
 
 ### 使用方式
 
