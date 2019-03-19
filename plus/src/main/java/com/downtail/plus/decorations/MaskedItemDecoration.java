@@ -218,11 +218,7 @@ public class MaskedItemDecoration extends RecyclerView.ItemDecoration {
                 parent.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
                     @Override
                     public boolean onInterceptTouchEvent(@NonNull RecyclerView recyclerView, @NonNull MotionEvent motionEvent) {
-                        View childView = recyclerView.findChildViewUnder(motionEvent.getX(), motionEvent.getY());
-                        if (childView != null) {
-                            return gestureDetector.onTouchEvent(motionEvent);
-                        }
-                        return false;
+                        return gestureDetector.onTouchEvent(motionEvent);
                     }
 
                     @Override

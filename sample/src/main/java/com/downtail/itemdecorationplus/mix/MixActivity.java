@@ -41,21 +41,27 @@ public class MixActivity extends AppCompatActivity {
         rvSample.setAdapter(mixAdapter);
         rvSample.setLayoutManager(gridLayoutManager);
 
-        MaskedItemDecoration maskedItemDecoration = MaskedItemDecoration.Builder
+//        MaskedItemDecoration maskedItemDecoration = MaskedItemDecoration.Builder
+//                .with(mixAdapter)
+//                .setOnMaskedItemClickListener(new MaskedItemDecoration.OnMaskedItemClickListener() {
+//                    @Override
+//                    public void onMaskedItemClick(int position) {
+//                        Toast.makeText(MixActivity.this, "ahha", Toast.LENGTH_SHORT).show();
+//                    }
+//                })
+//                .build();
+//        rvSample.addItemDecoration(maskedItemDecoration);
+
+        CosmeticItemDecoration cosmeticItemDecoration=CosmeticItemDecoration.Builder
                 .with(mixAdapter)
-                .setOnMaskedItemClickListener(new MaskedItemDecoration.OnMaskedItemClickListener() {
+                .setOnCosmeticItemClickListener(new CosmeticItemDecoration.OnCosmeticItemClickListener() {
                     @Override
-                    public void onMaskedItemClick(int position) {
+                    public void onCosmeticItemClick(int position) {
                         Toast.makeText(MixActivity.this, "ahha", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .build();
-        rvSample.addItemDecoration(maskedItemDecoration);
-
-//        CosmeticItemDecoration cosmeticItemDecoration=CosmeticItemDecoration.Builder
-//                .with(mixAdapter)
-//                .build();
-//        rvSample.addItemDecoration(cosmeticItemDecoration);
+        rvSample.addItemDecoration(cosmeticItemDecoration);
 
         List<MixEntity> data = new ArrayList<>();
         for (int i = 0; i < 8; i++) {

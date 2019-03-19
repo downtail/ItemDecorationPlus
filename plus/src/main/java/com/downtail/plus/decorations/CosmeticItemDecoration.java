@@ -380,6 +380,19 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
                     }
                 }
             }
+
+            //除了粘性item本身view为null，线性和网格布局混合情况下也有出现剩余空间的现象
+            if (cachePosition != -1) {
+                View cosmeticView = cosmeticExtension.getCosmeticView(cachePosition);
+                if (cosmeticView != null) {
+                    int length = cosmeticExtension.getCosmeticHeight(cachePosition);
+                    reMeasureAndLayout(cosmeticView, length);
+                    if (x > leftDatumLine && x < leftDatumLine + cosmeticView.getWidth() && y > topDatumLine && y < topDatumLine + cosmeticView.getHeight()) {
+                        return onChildTouchEvent(cosmeticView, length, x, y, leftDatumLine, topDatumLine, cachePosition);
+                    }
+                }
+            }
+
             return false;
         } else {
             if (cachePosition != -1) {
