@@ -2,21 +2,21 @@ package com.downtail.plus.decorations;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.SparseIntArray;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
-import com.downtail.plus.extensions.MaskedExtension;
+import com.downtail.plus.extensions.SupportExtension;
 import com.downtail.plus.utils.SizeUtil;
 import com.downtail.plus.utils.ViewUtil;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MaskedItemDecoration extends RecyclerView.ItemDecoration {
 
@@ -30,7 +30,7 @@ public class MaskedItemDecoration extends RecyclerView.ItemDecoration {
     /**
      * 拓展接口
      */
-    private MaskedExtension maskedExtension;
+    private SupportExtension supportExtension;
 
     private RecyclerView recyclerView;
 
@@ -40,9 +40,14 @@ public class MaskedItemDecoration extends RecyclerView.ItemDecoration {
     private int cachePosition;
 
     /**
+     * 缓存view
+     */
+    private Map<String, View> cacheViews;
+
+    /**
      * 缓存边界位置
      */
-    private SparseIntArray cacheEdges;
+    private Map<String, Integer> cacheEdges;
 
     /**
      * 实际的布局方向
@@ -58,6 +63,11 @@ public class MaskedItemDecoration extends RecyclerView.ItemDecoration {
      * left基准线，通常对于为屏幕x=0
      */
     private int leftDatumLine;
+
+    /**
+     * 设置偏移量
+     */
+    private int offset;
 
     /**
      * 子view设置监听事件
@@ -105,11 +115,13 @@ public class MaskedItemDecoration extends RecyclerView.ItemDecoration {
         }
     };
 
-    private MaskedItemDecoration(MaskedExtension maskedExtension) {
-        this.maskedExtension = maskedExtension;
-        this.cacheEdges = new SparseIntArray();
+    private MaskedItemDecoration(SupportExtension supportExtension) {
+        this.supportExtension = supportExtension;
+        this.cacheViews = new HashMap<>();
+        this.cacheEdges = new HashMap<>();
         this.cachePosition = -1;
         this.orientation = ORIENTATION_NONE;
+        this.offset = 0;
     }
 
     @Override
@@ -120,7 +132,7 @@ public class MaskedItemDecoration extends RecyclerView.ItemDecoration {
             recyclerView = parent;
         }
 
-        if (maskedExtension != null) {
+        if (supportExtension != null) {
             int top = parent.getTop() + parent.getPaddingTop();
             int left = parent.getLeft() + parent.getPaddingLeft();
             topDatumLine = top;
@@ -136,80 +148,161 @@ public class MaskedItemDecoration extends RecyclerView.ItemDecoration {
             }
 
             int childCount = parent.getChildCount();
-            for (int i = childCount - 1; i >= 0; i--) {
+            for (int i = 0; i < childCount; i++) {
                 View child = parent.getChildAt(i);
                 int position = parent.getChildAdapterPosition(child);
                 if (orientation == ORIENTATION_VERTICAL) {
                     int topDistance = child.getTop();
-                    if (maskedExtension.isMaskedItem(position)) {
+                    int bottomDistance = child.getBottom();
+                    if (supportExtension.isSupportItem(position)) {
                         if (topDistance <= top) {
                             cachePosition = position;
-                            cacheEdges.put(position, child.getLeft());
-                            break;
+                            String cacheKey = supportExtension.getCacheKey(cachePosition);
+                            if (cacheKey == null || cacheKey.equals("")) {
+                                cacheKey = String.valueOf(cachePosition);
+                            }
+                            cacheEdges.put(cacheKey, child.getLeft());
                         } else {
-                            cachePosition = getLatestMaskedPosition(position - 1);
-                            if (cachePosition != -1) {
-                                int cacheHeight = maskedExtension.getMaskedHeight(cachePosition);
+                            int latestMaskedPosition = getLatestMaskedPosition(position - 1);
+                            if (latestMaskedPosition != -1) {
+                                cachePosition = latestMaskedPosition;
+                                int cacheHeight = supportExtension.getSupportHeight(cachePosition);
                                 if (topDistance < top + cacheHeight) {
                                     topDatumLine = topDistance - cacheHeight;
                                 }
+                                break;
+                            } else {
+                                cachePosition = -1;
+                                break;
                             }
                         }
                     } else {
-                        cachePosition = getLatestMaskedPosition(position - 1);
+                        int latestMaskedPosition = getLatestMaskedPosition(position - 1);
+                        if (latestMaskedPosition != -1) {
+                            cachePosition = latestMaskedPosition;
+                            int cacheHeight = supportExtension.getSupportHeight(cachePosition);
+                            if (layoutManager instanceof GridLayoutManager) {
+                                if (topDistance > top + cacheHeight) {
+                                    break;
+                                }
+                            } else if (layoutManager instanceof LinearLayoutManager) {
+                                if (bottomDistance > top + cacheHeight) {
+                                    break;
+                                }
+                            }
+                        } else {
+                            cachePosition = -1;
+                            if (layoutManager instanceof GridLayoutManager) {
+                                //continue;
+                            } else if (layoutManager instanceof LinearLayoutManager) {
+                                break;
+                            }
+                        }
                     }
                 } else if (orientation == ORIENTATION_HORIZONTAL) {
                     int leftDistance = child.getLeft();
-                    if (maskedExtension.isMaskedItem(position)) {
+                    int rightDistance = child.getRight();
+                    if (supportExtension.isSupportItem(position)) {
                         if (leftDistance <= left) {
                             cachePosition = position;
-                            cacheEdges.put(position, child.getTop());
+                            String cacheKey = supportExtension.getCacheKey(cachePosition);
+                            if (cacheKey == null || cacheKey.equals("")) {
+                                cacheKey = String.valueOf(cachePosition);
+                            }
+                            cacheEdges.put(cacheKey, child.getTop());
                             break;
                         } else {
-                            cachePosition = getLatestMaskedPosition(position - 1);
-                            if (cachePosition != -1) {
-                                int cacheHeight = maskedExtension.getMaskedHeight(cachePosition);
+                            int latestMaskedPosition = getLatestMaskedPosition(position - 1);
+                            if (latestMaskedPosition != -1) {
+                                cachePosition = latestMaskedPosition;
+                                int cacheHeight = supportExtension.getSupportHeight(cachePosition);
                                 if (leftDistance < left + cacheHeight) {
                                     leftDatumLine = leftDistance - cacheHeight;
                                 }
+                                break;
+                            } else {
+                                cachePosition = -1;
+                                break;
                             }
                         }
                     } else {
-                        cachePosition = getLatestMaskedPosition(position - 1);
+                        int latestMaskedPosition = getLatestMaskedPosition(position - 1);
+                        if (latestMaskedPosition != -1) {
+                            cachePosition = latestMaskedPosition;
+                            int cacheHeight = supportExtension.getSupportHeight(cachePosition);
+                            if (layoutManager instanceof GridLayoutManager) {
+                                if (leftDistance > left + cacheHeight) {
+                                    break;
+                                }
+                            } else if (layoutManager instanceof LinearLayoutManager) {
+                                if (rightDistance > left + cacheHeight) {
+                                    break;
+                                }
+                            }
+                        } else {
+                            cachePosition = -1;
+                            if (layoutManager instanceof GridLayoutManager) {
+                                //continue;
+                            } else if (layoutManager instanceof LinearLayoutManager) {
+                                break;
+                            }
+                        }
                     }
                 }
             }
 
             if (cachePosition != -1 && orientation != ORIENTATION_NONE) {
-                View cacheView = maskedExtension.getMaskedView(cachePosition);
+                String cacheKey = supportExtension.getCacheKey(cachePosition);
+                if (cacheKey == null || cacheKey.equals("")) {
+                    cacheKey = String.valueOf(cachePosition);
+                }
+                View cacheView = cacheViews.get(cacheKey);
+                if (cacheView == null) {
+                    cacheView = supportExtension.getSupportView(cachePosition);
+                    int cacheHeight = supportExtension.getSupportHeight(cachePosition);
+                    reMeasureAndLayout(cacheView, cacheHeight);
+                    cacheViews.put(cacheKey, cacheView);
+                }
+
                 if (cacheView != null) {
-                    int length = maskedExtension.getMaskedHeight(cachePosition);
-                    if (layoutManager instanceof GridLayoutManager) {
-                        GridLayoutManager gridLayoutManager = (GridLayoutManager) layoutManager;
-                        int spanCount = gridLayoutManager.getSpanCount();
-                        int spanSize = gridLayoutManager.getSpanSizeLookup().getSpanSize(cachePosition);
-                        if (orientation == ORIENTATION_VERTICAL) {
-                            ViewUtil.measureAndLayout(cacheView, SizeUtil.getValidWidth(parent) * spanSize / spanCount, length);
-                        } else if (orientation == ORIENTATION_HORIZONTAL) {
-                            ViewUtil.measureAndLayout(cacheView, length, SizeUtil.getValidHeight(parent) * spanSize / spanCount);
-                        }
-                    } else if (layoutManager instanceof LinearLayoutManager) {
-                        if (orientation == ORIENTATION_VERTICAL) {
-                            ViewUtil.measureAndLayout(cacheView, SizeUtil.getValidWidth(parent), length);
-                        } else if (orientation == ORIENTATION_HORIZONTAL) {
-                            ViewUtil.measureAndLayout(cacheView, length, SizeUtil.getValidHeight(parent));
-                        }
-                    }
-                    Bitmap bitmap = Bitmap.createBitmap(cacheView.getWidth(), cacheView.getHeight(), Bitmap.Config.ARGB_8888);
-                    Canvas canvas = new Canvas(bitmap);
-                    canvas.drawColor(Color.WHITE);
-                    cacheView.draw(canvas);
+                    cacheView.setDrawingCacheEnabled(true);
+                    cacheView.buildDrawingCache();
+                    Bitmap bitmap = Bitmap.createBitmap(cacheView.getDrawingCache());
+                    cacheView.setDrawingCacheEnabled(false);
+                    Integer value = cacheEdges.get(cacheKey);
                     if (orientation == ORIENTATION_VERTICAL) {
-                        leftDatumLine = cacheEdges.get(cachePosition);
+                        if (value == null) {
+                            if (layoutManager instanceof GridLayoutManager) {
+                                GridLayoutManager gridLayoutManager = (GridLayoutManager) layoutManager;
+                                int spanCount = gridLayoutManager.getSpanCount();
+                                int spanIndex = gridLayoutManager.getSpanSizeLookup().getSpanIndex(cachePosition, spanCount);
+                                int unitSize = SizeUtil.getValidWidth(recyclerView) / spanCount;
+                                value = spanIndex * unitSize;
+                            } else {
+                                value = left;
+                            }
+                            cacheEdges.put(cacheKey, value);
+                        }
+                        leftDatumLine = value;
+                        topDatumLine += offset;
                     } else if (orientation == ORIENTATION_HORIZONTAL) {
-                        topDatumLine = cacheEdges.get(cachePosition);
+                        if (value == null) {
+                            if (layoutManager instanceof GridLayoutManager) {
+                                int spanCount = ((GridLayoutManager) layoutManager).getSpanCount();
+                                int unitSize = SizeUtil.getValidHeight(recyclerView) / spanCount;
+                                value = (cachePosition % spanCount) * unitSize;
+                            } else {
+                                value = left;
+                            }
+                            cacheEdges.put(cacheKey, value);
+                        }
+                        topDatumLine = value;
+                        leftDatumLine += offset;
                     }
                     c.drawBitmap(bitmap, leftDatumLine, topDatumLine, null);
+                    if (!bitmap.isRecycled()) {
+                        bitmap.recycle();
+                    }
                 }
             }
 
@@ -240,12 +333,12 @@ public class MaskedItemDecoration extends RecyclerView.ItemDecoration {
      * 获取上一个Masked的position
      *
      * @param position 当前view的position
-     * @return
+     * @return 上一个粘性position
      */
     private int getLatestMaskedPosition(int position) {
-        if (maskedExtension != null) {
+        if (supportExtension != null) {
             for (int i = position; i >= 0; i--) {
-                if (maskedExtension.isMaskedItem(i)) {
+                if (supportExtension.isSupportItem(i)) {
                     return i;
                 }
             }
@@ -261,16 +354,24 @@ public class MaskedItemDecoration extends RecyclerView.ItemDecoration {
      */
     private boolean onTouchEvent(MotionEvent event) {
         if (cachePosition != -1) {
-            View maskedView = maskedExtension.getMaskedView(cachePosition);
-            if (maskedView != null) {
+            String cacheKey = supportExtension.getCacheKey(cachePosition);
+            if (cacheKey == null || cacheKey.equals("")) {
+                cacheKey = String.valueOf(cachePosition);
+            }
+            View cacheView = cacheViews.get(cacheKey);
+            if (cacheView == null) {
+                cacheView = supportExtension.getSupportView(cachePosition);
+                int cacheHeight = supportExtension.getSupportHeight(cachePosition);
+                reMeasureAndLayout(cacheView, cacheHeight);
+                cacheViews.put(cacheKey, cacheView);
+            }
+
+            if (cacheView != null) {
                 float x = event.getX();
                 float y = event.getY();
-
-                int length = maskedExtension.getMaskedHeight(cachePosition);
-                reMeasureAndLayout(maskedView, length);
-                if (x > leftDatumLine && x < leftDatumLine + maskedView.getWidth() && y > topDatumLine && y < topDatumLine + maskedView.getHeight()) {
+                if (x > leftDatumLine && x < leftDatumLine + cacheView.getWidth() && y > topDatumLine && y < topDatumLine + cacheView.getHeight()) {
                     if (onMaskedViewClickListener != null) {
-                        List<View> children = ViewUtil.getChildViewWithId(maskedView);
+                        List<View> children = ViewUtil.getChildViewWithId(cacheView);
                         for (int i = 0; i < children.size(); i++) {
                             View child = children.get(i);
                             int top = child.getTop() + topDatumLine;
@@ -287,8 +388,6 @@ public class MaskedItemDecoration extends RecyclerView.ItemDecoration {
                         onMaskedItemClickListener.onMaskedItemClick(cachePosition);
                     }
                     return true;
-                } else {
-                    return false;
                 }
             }
         }
@@ -318,12 +417,12 @@ public class MaskedItemDecoration extends RecyclerView.ItemDecoration {
     public static class Builder {
         private MaskedItemDecoration maskedItemDecoration;
 
-        public Builder(MaskedExtension maskedExtension) {
-            maskedItemDecoration = new MaskedItemDecoration(maskedExtension);
+        private Builder(SupportExtension supportExtension) {
+            maskedItemDecoration = new MaskedItemDecoration(supportExtension);
         }
 
-        public static Builder with(MaskedExtension maskedExtension) {
-            return new Builder(maskedExtension);
+        public static Builder with(SupportExtension supportExtension) {
+            return new Builder(supportExtension);
         }
 
         public Builder setOnMaskedViewClickListener(OnMaskedViewClickListener onMaskedViewClickListener) {
@@ -353,6 +452,28 @@ public class MaskedItemDecoration extends RecyclerView.ItemDecoration {
      */
     public interface OnMaskedItemClickListener {
         void onMaskedItemClick(int position);
+    }
+
+    /**
+     * 上拉加载更多时对粘性布局设置偏移
+     *
+     * @param offset
+     */
+    public void setOffset(int offset) {
+        this.offset = offset;
+        if (recyclerView != null) {
+            RecyclerView.Adapter adapter = recyclerView.getAdapter();
+            if (adapter != null) {
+                adapter.notifyItemChanged(0);
+            }
+        }
+    }
+
+    /**
+     * 当需要重新绘制时清除缓存position
+     */
+    public void clearCache() {
+        cachePosition = -1;
     }
 
 }

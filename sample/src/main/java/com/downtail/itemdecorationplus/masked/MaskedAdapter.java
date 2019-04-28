@@ -10,12 +10,12 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.downtail.itemdecorationplus.R;
-import com.downtail.plus.extensions.MaskedExtension;
+import com.downtail.plus.extensions.SupportExtension;
 import com.downtail.plus.utils.SizeUtil;
 
 import java.util.List;
 
-public class MaskedAdapter extends RecyclerView.Adapter<MaskedAdapter.SampleHolder> implements MaskedExtension {
+public class MaskedAdapter extends RecyclerView.Adapter<MaskedAdapter.SampleHolder> implements SupportExtension {
 
 
     private Context context;
@@ -65,11 +65,6 @@ public class MaskedAdapter extends RecyclerView.Adapter<MaskedAdapter.SampleHold
         }
     }
 
-    @Override
-    public boolean isMaskedItem(int position) {
-        return position % 6 == 1;
-    }
-
     public interface OnItemClickListener {
         void onItemClick(int position);
     }
@@ -79,16 +74,26 @@ public class MaskedAdapter extends RecyclerView.Adapter<MaskedAdapter.SampleHold
     }
 
     @Override
-    public int getMaskedHeight(int position) {
+    public boolean isSupportItem(int position) {
+        return position % 6 == 1;
+    }
+
+    @Override
+    public int getSupportHeight(int position) {
         return SizeUtil.dip2px(context, 50);
     }
 
     @Override
-    public View getMaskedView(int position) {
+    public View getSupportView(int position) {
         View view = LayoutInflater.from(context).inflate(R.layout.item_masked, null, false);
         view.setBackgroundColor(Color.parseColor("#ff0000"));
         TextView textView = view.findViewById(R.id.tv_sample);
         textView.setText(position + "");
         return view;
+    }
+
+    @Override
+    public String getCacheKey(int position) {
+        return String.valueOf(position);
     }
 }

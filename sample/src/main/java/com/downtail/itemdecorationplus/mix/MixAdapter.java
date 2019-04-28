@@ -9,12 +9,12 @@ import com.chad.library.adapter.base.BaseMultiItemQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.downtail.itemdecorationplus.R;
 import com.downtail.plus.extensions.CosmeticExtension;
-import com.downtail.plus.extensions.MaskedExtension;
+import com.downtail.plus.extensions.SupportExtension;
 import com.downtail.plus.utils.SizeUtil;
 
 import java.util.List;
 
-public class MixAdapter extends BaseMultiItemQuickAdapter<MixEntity, BaseViewHolder> implements MaskedExtension, CosmeticExtension {
+public class MixAdapter extends BaseMultiItemQuickAdapter<MixEntity, BaseViewHolder> implements SupportExtension, CosmeticExtension {
 
     public MixAdapter(List<MixEntity> data) {
         super(data);
@@ -34,24 +34,6 @@ public class MixAdapter extends BaseMultiItemQuickAdapter<MixEntity, BaseViewHol
     }
 
     @Override
-    public boolean isMaskedItem(int position) {
-        return getItemViewType(position) == MixEntity.TYPE_HEADER;
-    }
-
-    @Override
-    public int getMaskedHeight(int position) {
-        return SizeUtil.dip2px(mContext, 40);
-    }
-
-    @Override
-    public View getMaskedView(int position) {
-        View view = LayoutInflater.from(mContext).inflate(R.layout.item_mix_header, null, false);
-        TextView tvMix = view.findViewById(R.id.tv_mix_header);
-        tvMix.setText("ahha   " + position);
-        return view;
-    }
-
-    @Override
     public boolean isCosmeticItem(int position) {
         return getItemViewType(position) == MixEntity.TYPE_HEADER;
     }
@@ -68,5 +50,28 @@ public class MixAdapter extends BaseMultiItemQuickAdapter<MixEntity, BaseViewHol
         tvMix.setText("ahha");
         view.setBackgroundColor(Color.parseColor("#ff0000"));
         return view;
+    }
+
+    @Override
+    public boolean isSupportItem(int position) {
+        return getItemViewType(position) == MixEntity.TYPE_HEADER;
+    }
+
+    @Override
+    public int getSupportHeight(int position) {
+        return SizeUtil.dip2px(mContext, 40);
+    }
+
+    @Override
+    public View getSupportView(int position) {
+        View view = LayoutInflater.from(mContext).inflate(R.layout.item_mix_header, null, false);
+        TextView tvMix = view.findViewById(R.id.tv_mix_header);
+        tvMix.setText("ahha   " + position);
+        return view;
+    }
+
+    @Override
+    public String getCacheKey(int position) {
+        return String.valueOf(position);
     }
 }
