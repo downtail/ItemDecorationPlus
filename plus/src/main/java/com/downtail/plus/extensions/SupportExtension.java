@@ -32,7 +32,7 @@ public interface SupportExtension {
     View getSupportView(int position);
 
     /**
-     * 获取缓存key，如返回null表示不缓存当前粘性view
+     * 获取缓存key，如返回null表示String.valueOf(position)为key缓存当前粘性view
      *
      * @param position
      * @return
