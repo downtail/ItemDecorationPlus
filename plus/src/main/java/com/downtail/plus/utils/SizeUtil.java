@@ -5,10 +5,22 @@ import android.support.v7.widget.RecyclerView;
 
 public class SizeUtil {
 
+    /**
+     * 获取RecyclerView的有效宽度
+     *
+     * @param parent
+     * @return
+     */
     public static int getValidWidth(RecyclerView parent) {
         return (parent.getRight() - parent.getPaddingRight()) - (parent.getLeft() + parent.getPaddingLeft());
     }
 
+    /**
+     * 获取RecyclerView的有效高度
+     *
+     * @param parent
+     * @return
+     */
     public static int getValidHeight(RecyclerView parent) {
         return (parent.getBottom() - parent.getPaddingBottom()) - (parent.getTop() + parent.getPaddingTop());
     }

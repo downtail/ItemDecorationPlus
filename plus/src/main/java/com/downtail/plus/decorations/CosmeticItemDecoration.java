@@ -2,22 +2,22 @@ package com.downtail.plus.decorations;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Rect;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.SparseIntArray;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
-import com.downtail.plus.extensions.CosmeticExtension;
+import com.downtail.plus.extensions.SupportExtension;
 import com.downtail.plus.utils.SizeUtil;
 import com.downtail.plus.utils.ViewUtil;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
 
@@ -31,7 +31,7 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
     /**
      * 拓展接口
      */
-    private CosmeticExtension cosmeticExtension;
+    private SupportExtension supportExtension;
 
     private RecyclerView recyclerView;
 
@@ -41,9 +41,14 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
     private int cachePosition;
 
     /**
+     * 缓存view
+     */
+    private Map<String, View> cacheViews;
+
+    /**
      * 缓存边界位置
      */
-    private SparseIntArray cacheEdges;
+    private Map<String, Integer> cacheEdges;
 
     /**
      * 实际的布局方向
@@ -59,6 +64,11 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
      * left基准线，通常对于为屏幕x=0
      */
     private int leftDatumLine;
+
+    /**
+     * 设置偏移量
+     */
+    private int offset;
 
     /**
      * 子view设置监听事件
@@ -106,23 +116,25 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
         }
     };
 
-    private CosmeticItemDecoration(CosmeticExtension cosmeticExtension) {
-        this.cosmeticExtension = cosmeticExtension;
-        this.cacheEdges = new SparseIntArray();
+    private CosmeticItemDecoration(SupportExtension supportExtension) {
+        this.supportExtension = supportExtension;
+        this.cacheViews = new HashMap<>();
+        this.cacheEdges = new HashMap<>();
         this.cachePosition = -1;
         this.orientation = ORIENTATION_NONE;
+        this.offset = 0;
     }
 
     @Override
     public void getItemOffsets(@NonNull Rect outRect, @NonNull View view, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
         super.getItemOffsets(outRect, view, parent, state);
 
-        if (cosmeticExtension != null) {
+        if (supportExtension != null) {
             int position = parent.getChildAdapterPosition(view);
-            if (cosmeticExtension.isCosmeticItem(position)) {
-                View cosmeticView = cosmeticExtension.getCosmeticView(position);
+            if (supportExtension.isSupportItem(position)) {
+                View cosmeticView = supportExtension.getSupportView(position);
                 if (cosmeticView != null) {
-                    int length = cosmeticExtension.getCosmeticHeight(position);
+                    int length = supportExtension.getSupportHeight(position);
                     RecyclerView.LayoutManager layoutManager = parent.getLayoutManager();
                     if (layoutManager instanceof GridLayoutManager) {
                         GridLayoutManager gridLayoutManager = (GridLayoutManager) layoutManager;
@@ -148,6 +160,11 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
                     } else {
                         orientation = ORIENTATION_NONE;
                     }
+                    String cacheKey = supportExtension.getCacheKey(cachePosition);
+                    if (cacheKey == null || cacheKey.equals("")) {
+                        cacheKey = String.valueOf(cachePosition);
+                    }
+                    cacheViews.put(cacheKey, cosmeticView);
                 }
             }
         }
@@ -162,7 +179,7 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
             recyclerView = parent;
         }
 
-        if (cosmeticExtension != null) {
+        if (supportExtension != null) {
             int top = parent.getTop() + parent.getPaddingTop();
             int left = parent.getLeft() + parent.getPaddingLeft();
             topDatumLine = top;
@@ -178,121 +195,146 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
             }
 
             int childCount = parent.getChildCount();
-            for (int i = childCount - 1; i >= 0; i--) {
+            for (int i = 0; i < childCount; i++) {
                 View child = parent.getChildAt(i);
                 int position = parent.getChildAdapterPosition(child);
                 if (orientation == ORIENTATION_VERTICAL) {
                     int topDistance = child.getTop();
-                    if (cosmeticExtension.isCosmeticItem(position)) {
-                        int distance = cosmeticExtension.getCosmeticHeight(position);
+                    if (supportExtension.isSupportItem(position)) {
+                        int distance = supportExtension.getSupportHeight(position);
                         if (topDistance - distance <= top) {
                             cachePosition = position;
-                            cacheEdges.put(position, child.getLeft());
-                            break;
+                            String cacheKey = supportExtension.getCacheKey(cachePosition);
+                            if (cacheKey == null || cacheKey.equals("")) {
+                                cacheKey = String.valueOf(cachePosition);
+                            }
+                            cacheEdges.put(cacheKey, child.getLeft());
                         } else {
-                            cachePosition = getLatestCosmeticPosition(position - 1);
+                            if (i == 0) {
+                                cachePosition = getLatestCosmeticPosition(position - 1);
+                            }
                             if (cachePosition != -1) {
-                                int cacheHeight = cosmeticExtension.getCosmeticHeight(cachePosition);
+                                int cacheHeight = supportExtension.getSupportHeight(cachePosition);
                                 if (topDistance - distance <= top + cacheHeight) {
                                     topDatumLine = topDistance - distance - cacheHeight;
                                 }
                             }
                         }
                     } else {
-                        cachePosition = getLatestCosmeticPosition(position - 1);
-                    }
-
-                    if (cosmeticExtension.isCosmeticItem(position) && cachePosition != position) {
-                        View cosmeticView = cosmeticExtension.getCosmeticView(position);
-                        if (cosmeticView != null) {
-                            int length = cosmeticExtension.getCosmeticHeight(position);
-                            if (layoutManager instanceof GridLayoutManager) {
-                                GridLayoutManager gridLayoutManager = (GridLayoutManager) layoutManager;
-                                int spanCount = gridLayoutManager.getSpanCount();
-                                int spanSize = gridLayoutManager.getSpanSizeLookup().getSpanSize(position);
-                                ViewUtil.measureAndLayout(cosmeticView, SizeUtil.getValidWidth(parent) * spanSize / spanCount, length);
-                            } else if (layoutManager instanceof LinearLayoutManager) {
-                                ViewUtil.measureAndLayout(cosmeticView, SizeUtil.getValidWidth(parent), length);
-                            }
-                            Bitmap bitmap = Bitmap.createBitmap(cosmeticView.getWidth(), cosmeticView.getHeight(), Bitmap.Config.ARGB_8888);
-                            Canvas canvas = new Canvas(bitmap);
-                            canvas.drawColor(Color.WHITE);
-                            cosmeticView.draw(canvas);
-                            c.drawBitmap(bitmap, child.getLeft(), child.getTop() - cosmeticView.getHeight(), null);
+                        if (i == 0) {
+                            cachePosition = getLatestCosmeticPosition(position);
                         }
                     }
                 } else if (orientation == ORIENTATION_HORIZONTAL) {
                     int leftDistance = child.getLeft();
-                    if (cosmeticExtension.isCosmeticItem(position)) {
-                        int distance = cosmeticExtension.getCosmeticHeight(position);
+                    if (supportExtension.isSupportItem(position)) {
+                        int distance = supportExtension.getSupportHeight(position);
                         if (leftDistance - distance <= left) {
                             cachePosition = position;
-                            cacheEdges.put(position, child.getTop());
-                            break;
+                            String cacheKey = supportExtension.getCacheKey(cachePosition);
+                            if (cacheKey == null || cacheKey.equals("")) {
+                                cacheKey = String.valueOf(cachePosition);
+                            }
+                            cacheEdges.put(cacheKey, child.getTop());
                         } else {
-                            cachePosition = getLatestCosmeticPosition(position - 1);
+                            if (i == 0) {
+                                cachePosition = getLatestCosmeticPosition(position - 1);
+                            }
                             if (cachePosition != -1) {
-                                int cacheHeight = cosmeticExtension.getCosmeticHeight(cachePosition);
+                                int cacheHeight = supportExtension.getSupportHeight(cachePosition);
                                 if (leftDistance - distance <= left + cacheHeight) {
                                     leftDatumLine = leftDistance - distance - cacheHeight;
                                 }
                             }
                         }
                     } else {
-                        cachePosition = getLatestCosmeticPosition(position - 1);
+                        if (i == 0) {
+                            cachePosition = getLatestCosmeticPosition(position - 1);
+                        }
                     }
-
-                    if (cosmeticExtension.isCosmeticItem(position) && cachePosition != position) {
-                        View cosmeticView = cosmeticExtension.getCosmeticView(position);
-                        if (cosmeticView != null) {
-                            int length = cosmeticExtension.getCosmeticHeight(position);
-                            if (layoutManager instanceof GridLayoutManager) {
-                                GridLayoutManager gridLayoutManager = (GridLayoutManager) layoutManager;
-                                int spanCount = gridLayoutManager.getSpanCount();
-                                int spanSize = gridLayoutManager.getSpanSizeLookup().getSpanSize(position);
-                                ViewUtil.measureAndLayout(cosmeticView, length, SizeUtil.getValidHeight(parent) * spanSize / spanCount);
-                            } else if (layoutManager instanceof LinearLayoutManager) {
-                                ViewUtil.measureAndLayout(cosmeticView, length, SizeUtil.getValidHeight(parent));
-                            }
-                            Bitmap bitmap = Bitmap.createBitmap(cosmeticView.getWidth(), cosmeticView.getHeight(), Bitmap.Config.ARGB_8888);
-                            Canvas canvas = new Canvas(bitmap);
-                            canvas.drawColor(Color.WHITE);
-                            cosmeticView.draw(canvas);
+                }
+                if (supportExtension.isSupportItem(position) && cachePosition != position) {
+                    String cacheKey = supportExtension.getCacheKey(position);
+                    if (cacheKey == null || cacheKey.equals("")) {
+                        cacheKey = String.valueOf(position);
+                    }
+                    View cosmeticView = cacheViews.get(cacheKey);
+                    if (cosmeticView == null) {
+                        cosmeticView = supportExtension.getSupportView(position);
+                        int cacheHeight = supportExtension.getSupportHeight(position);
+                        reMeasureAndLayout(cosmeticView, cacheHeight);
+                        cacheViews.put(cacheKey, cosmeticView);
+                    }
+                    if (cosmeticView != null) {
+                        cosmeticView.setDrawingCacheEnabled(true);
+                        cosmeticView.buildDrawingCache();
+                        Bitmap bitmap = Bitmap.createBitmap(cosmeticView.getDrawingCache());
+                        cosmeticView.setDrawingCacheEnabled(false);
+                        if (orientation == ORIENTATION_VERTICAL) {
+                            c.drawBitmap(bitmap, child.getLeft(), child.getTop() - cosmeticView.getHeight(), null);
+                        } else if (orientation == ORIENTATION_HORIZONTAL) {
                             c.drawBitmap(bitmap, child.getLeft() - cosmeticView.getWidth(), child.getTop(), null);
+                        }
+                        if (!bitmap.isRecycled()) {
+                            bitmap.recycle();
                         }
                     }
                 }
             }
+
             if (cachePosition != -1 && orientation != ORIENTATION_NONE) {
-                View cacheView = cosmeticExtension.getCosmeticView(cachePosition);
+                String cacheKey = supportExtension.getCacheKey(cachePosition);
+                if (cacheKey == null || cacheKey.equals("")) {
+                    cacheKey = String.valueOf(cachePosition);
+                }
+                View cacheView = cacheViews.get(cacheKey);
+                if (cacheView == null) {
+                    cacheView = supportExtension.getSupportView(cachePosition);
+                    int cacheHeight = supportExtension.getSupportHeight(cachePosition);
+                    reMeasureAndLayout(cacheView, cacheHeight);
+                    cacheViews.put(cacheKey, cacheView);
+                }
                 if (cacheView != null) {
-                    int length = cosmeticExtension.getCosmeticHeight(cachePosition);
-                    if (layoutManager instanceof GridLayoutManager) {
-                        GridLayoutManager gridLayoutManager = (GridLayoutManager) layoutManager;
-                        int spanCount = gridLayoutManager.getSpanCount();
-                        int spanSize = gridLayoutManager.getSpanSizeLookup().getSpanSize(cachePosition);
-                        if (orientation == ORIENTATION_VERTICAL) {
-                            ViewUtil.measureAndLayout(cacheView, SizeUtil.getValidWidth(parent) * spanSize / spanCount, length);
-                        } else if (orientation == ORIENTATION_HORIZONTAL) {
-                            ViewUtil.measureAndLayout(cacheView, length, SizeUtil.getValidHeight(parent) * spanSize / spanCount);
-                        }
-                    } else if (layoutManager instanceof LinearLayoutManager) {
-                        if (orientation == ORIENTATION_VERTICAL) {
-                            ViewUtil.measureAndLayout(cacheView, SizeUtil.getValidWidth(parent), length);
-                        } else if (orientation == ORIENTATION_HORIZONTAL) {
-                            ViewUtil.measureAndLayout(cacheView, length, SizeUtil.getValidHeight(parent));
-                        }
-                    }
-                    Bitmap bitmap = Bitmap.createBitmap(cacheView.getWidth(), cacheView.getHeight(), Bitmap.Config.ARGB_8888);
-                    Canvas canvas = new Canvas(bitmap);
-                    canvas.drawColor(Color.WHITE);
-                    cacheView.draw(canvas);
+                    cacheView.setDrawingCacheEnabled(true);
+                    cacheView.buildDrawingCache();
+                    Bitmap bitmap = Bitmap.createBitmap(cacheView.getDrawingCache());
+                    cacheView.setDrawingCacheEnabled(false);
+                    Integer value = cacheEdges.get(cacheKey);
                     if (orientation == ORIENTATION_VERTICAL) {
-                        leftDatumLine = cacheEdges.get(cachePosition);
+                        if (value == null) {
+                            if (layoutManager instanceof GridLayoutManager) {
+                                GridLayoutManager gridLayoutManager = (GridLayoutManager) layoutManager;
+                                int spanCount = gridLayoutManager.getSpanCount();
+                                int spanIndex = gridLayoutManager.getSpanSizeLookup().getSpanIndex(cachePosition, spanCount);
+                                int unitSize = SizeUtil.getValidWidth(recyclerView) / spanCount;
+                                value = spanIndex * unitSize;
+                            } else {
+                                value = parent.getPaddingLeft();
+                            }
+                            cacheEdges.put(cacheKey, value);
+                        }
+                        leftDatumLine = value;
+                        topDatumLine += offset;
                     } else if (orientation == ORIENTATION_HORIZONTAL) {
-                        topDatumLine = cacheEdges.get(cachePosition);
+                        if (value == null) {
+                            if (layoutManager instanceof GridLayoutManager) {
+                                GridLayoutManager gridLayoutManager = (GridLayoutManager) layoutManager;
+                                int spanCount = gridLayoutManager.getSpanCount();
+                                int spanIndex = gridLayoutManager.getSpanSizeLookup().getSpanIndex(cachePosition, spanCount);
+                                int unitSize = SizeUtil.getValidHeight(recyclerView) / spanCount;
+                                value = spanIndex * unitSize;
+                            } else {
+                                value = parent.getPaddingTop();
+                            }
+                            cacheEdges.put(cacheKey, value);
+                        }
+                        topDatumLine = value;
+                        leftDatumLine += offset;
                     }
                     c.drawBitmap(bitmap, leftDatumLine, topDatumLine, null);
+                    if (!bitmap.isRecycled()) {
+                        bitmap.recycle();
+                    }
                 }
             }
 
@@ -340,9 +382,9 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
     }
 
     private int getLatestCosmeticPosition(int position) {
-        if (cosmeticExtension != null) {
+        if (supportExtension != null) {
             for (int i = position; i >= 0; i--) {
-                if (cosmeticExtension.isCosmeticItem(i)) {
+                if (supportExtension.isSupportItem(i)) {
                     return i;
                 }
             }
@@ -359,8 +401,8 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
             for (int i = 0; i < childCount; i++) {
                 View view = recyclerView.getChildAt(i);
                 int position = recyclerView.getChildAdapterPosition(view);
-                if (cosmeticExtension.isCosmeticItem(position)) {
-                    int length = cosmeticExtension.getCosmeticHeight(position);
+                if (supportExtension.isSupportItem(position)) {
+                    int length = supportExtension.getSupportHeight(position);
                     int bottom = view.getBottom();
                     int top = view.getTop();
                     int left = view.getLeft();
@@ -373,7 +415,7 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
                         left = right - length;
                     }
                     if (x > left && x < right && y > top && y < bottom) {
-                        View cosmeticView = cosmeticExtension.getCosmeticView(position);
+                        View cosmeticView = supportExtension.getSupportView(position);
                         if (cosmeticView != null) {
                             return onChildTouchEvent(cosmeticView, length, x, y, left, top, position);
                         }
@@ -383,9 +425,9 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
 
             //除了粘性item本身view为null，线性和网格布局混合情况下也有出现剩余空间的现象
             if (cachePosition != -1) {
-                View cosmeticView = cosmeticExtension.getCosmeticView(cachePosition);
+                View cosmeticView = supportExtension.getSupportView(cachePosition);
                 if (cosmeticView != null) {
-                    int length = cosmeticExtension.getCosmeticHeight(cachePosition);
+                    int length = supportExtension.getSupportHeight(cachePosition);
                     reMeasureAndLayout(cosmeticView, length);
                     if (x > leftDatumLine && x < leftDatumLine + cosmeticView.getWidth() && y > topDatumLine && y < topDatumLine + cosmeticView.getHeight()) {
                         return onChildTouchEvent(cosmeticView, length, x, y, leftDatumLine, topDatumLine, cachePosition);
@@ -396,9 +438,9 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
             return false;
         } else {
             if (cachePosition != -1) {
-                View cosmeticView = cosmeticExtension.getCosmeticView(cachePosition);
+                View cosmeticView = supportExtension.getSupportView(cachePosition);
                 if (cosmeticView != null) {
-                    int length = cosmeticExtension.getCosmeticHeight(cachePosition);
+                    int length = supportExtension.getSupportHeight(cachePosition);
                     reMeasureAndLayout(cosmeticView, length);
                     if (x > leftDatumLine && x < leftDatumLine + cosmeticView.getWidth() && y > topDatumLine && y < topDatumLine + cosmeticView.getHeight()) {
                         return onChildTouchEvent(cosmeticView, length, x, y, leftDatumLine, topDatumLine, cachePosition);
@@ -430,12 +472,12 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
     public static class Builder {
         private CosmeticItemDecoration cosmeticItemDecoration;
 
-        private Builder(CosmeticExtension cosmeticExtension) {
-            cosmeticItemDecoration = new CosmeticItemDecoration(cosmeticExtension);
+        private Builder(SupportExtension supportExtension) {
+            cosmeticItemDecoration = new CosmeticItemDecoration(supportExtension);
         }
 
-        public static Builder with(CosmeticExtension cosmeticExtension) {
-            return new Builder(cosmeticExtension);
+        public static Builder with(SupportExtension supportExtension) {
+            return new Builder(supportExtension);
         }
 
         public Builder setOnCosmeticViewClickListener(OnCosmeticViewClickListener onCosmeticViewClickListener) {
@@ -459,6 +501,28 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
 
     public interface OnCosmeticItemClickListener {
         void onCosmeticItemClick(int position);
+    }
+
+    /**
+     * 上拉加载更多时对粘性布局设置偏移
+     *
+     * @param offset
+     */
+    public void setOffset(int offset) {
+        this.offset = offset;
+        if (recyclerView != null) {
+            RecyclerView.Adapter adapter = recyclerView.getAdapter();
+            if (adapter != null) {
+                adapter.notifyItemChanged(0);
+            }
+        }
+    }
+
+    /**
+     * 当需要重新绘制时清除缓存position
+     */
+    public void clearCache() {
+        cachePosition = -1;
     }
 
 }

@@ -9,11 +9,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.downtail.itemdecorationplus.R;
-import com.downtail.plus.extensions.CosmeticExtension;
+import com.downtail.plus.extensions.SupportExtension;
 
 import java.util.List;
 
-public class CosmeticAdapter extends RecyclerView.Adapter<CosmeticAdapter.CosmeticHolder> implements CosmeticExtension {
+public class CosmeticAdapter extends RecyclerView.Adapter<CosmeticAdapter.CosmeticHolder> implements SupportExtension {
 
     private Context context;
     private List<String> data;
@@ -58,21 +58,26 @@ public class CosmeticAdapter extends RecyclerView.Adapter<CosmeticAdapter.Cosmet
     }
 
     @Override
-    public boolean isCosmeticItem(int position) {
+    public boolean isSupportItem(int position) {
         return position % 7 == 1;
     }
 
     @Override
-    public int getCosmeticHeight(int position) {
+    public int getSupportHeight(int position) {
         return 200;
     }
 
     @Override
-    public View getCosmeticView(int position) {
+    public View getSupportView(int position) {
         View view = LayoutInflater.from(context).inflate(R.layout.layout_fill, null, false);
         TextView textView = view.findViewById(R.id.tv_fill);
         textView.setText(position + "ahha");
         return view;
+    }
+
+    @Override
+    public String getCacheKey(int position) {
+        return String.valueOf(position);
     }
 
     public interface OnItemClickListener {

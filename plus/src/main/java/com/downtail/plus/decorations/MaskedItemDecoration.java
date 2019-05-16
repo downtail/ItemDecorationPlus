@@ -279,7 +279,7 @@ public class MaskedItemDecoration extends RecyclerView.ItemDecoration {
                                 int unitSize = SizeUtil.getValidWidth(recyclerView) / spanCount;
                                 value = spanIndex * unitSize;
                             } else {
-                                value = left;
+                                value = parent.getPaddingLeft();
                             }
                             cacheEdges.put(cacheKey, value);
                         }
@@ -288,11 +288,13 @@ public class MaskedItemDecoration extends RecyclerView.ItemDecoration {
                     } else if (orientation == ORIENTATION_HORIZONTAL) {
                         if (value == null) {
                             if (layoutManager instanceof GridLayoutManager) {
-                                int spanCount = ((GridLayoutManager) layoutManager).getSpanCount();
+                                GridLayoutManager gridLayoutManager = (GridLayoutManager) layoutManager;
+                                int spanCount = gridLayoutManager.getSpanCount();
+                                int spanIndex = gridLayoutManager.getSpanSizeLookup().getSpanIndex(cachePosition, spanCount);
                                 int unitSize = SizeUtil.getValidHeight(recyclerView) / spanCount;
-                                value = (cachePosition % spanCount) * unitSize;
+                                value = spanIndex * unitSize;
                             } else {
-                                value = left;
+                                value = parent.getPaddingTop();
                             }
                             cacheEdges.put(cacheKey, value);
                         }
