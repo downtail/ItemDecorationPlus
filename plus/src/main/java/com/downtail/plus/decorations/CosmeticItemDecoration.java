@@ -160,9 +160,9 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
                     } else {
                         orientation = ORIENTATION_NONE;
                     }
-                    String cacheKey = supportExtension.getCacheKey(cachePosition);
+                    String cacheKey = supportExtension.getCacheKey(position);
                     if (cacheKey == null || cacheKey.equals("")) {
-                        cacheKey = String.valueOf(cachePosition);
+                        cacheKey = String.valueOf(position);
                     }
                     cacheViews.put(cacheKey, cosmeticView);
                 }
@@ -254,17 +254,7 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
                     }
                 }
                 if (supportExtension.isSupportItem(position) && cachePosition != position) {
-                    String cacheKey = supportExtension.getCacheKey(position);
-                    if (cacheKey == null || cacheKey.equals("")) {
-                        cacheKey = String.valueOf(position);
-                    }
-                    View cosmeticView = cacheViews.get(cacheKey);
-                    if (cosmeticView == null) {
-                        cosmeticView = supportExtension.getSupportView(position);
-                        int cacheHeight = supportExtension.getSupportHeight(position);
-                        reMeasureAndLayout(cosmeticView, cacheHeight);
-                        cacheViews.put(cacheKey, cosmeticView);
-                    }
+                    View cosmeticView = drawView(position);
                     if (cosmeticView != null) {
                         cosmeticView.setDrawingCacheEnabled(true);
                         cosmeticView.buildDrawingCache();
@@ -287,13 +277,7 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
                 if (cacheKey == null || cacheKey.equals("")) {
                     cacheKey = String.valueOf(cachePosition);
                 }
-                View cacheView = cacheViews.get(cacheKey);
-                if (cacheView == null) {
-                    cacheView = supportExtension.getSupportView(cachePosition);
-                    int cacheHeight = supportExtension.getSupportHeight(cachePosition);
-                    reMeasureAndLayout(cacheView, cacheHeight);
-                    cacheViews.put(cacheKey, cacheView);
-                }
+                View cacheView = drawView(cachePosition);
                 if (cacheView != null) {
                     cacheView.setDrawingCacheEnabled(true);
                     cacheView.buildDrawingCache();
@@ -381,6 +365,12 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
         }
     }
 
+    /**
+     * 寻找当前位置的前一个粘性item
+     *
+     * @param position 当前位置
+     * @return 粘性item位置
+     */
     private int getLatestCosmeticPosition(int position) {
         if (supportExtension != null) {
             for (int i = position; i >= 0; i--) {
@@ -392,6 +382,12 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
         return -1;
     }
 
+    /**
+     * 点击事件
+     *
+     * @param event 触摸事件
+     * @return 是否消费
+     */
     private boolean onTouchEvent(MotionEvent event) {
         float x = event.getX();
         float y = event.getY();
@@ -415,9 +411,9 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
                         left = right - length;
                     }
                     if (x > left && x < right && y > top && y < bottom) {
-                        View cosmeticView = supportExtension.getSupportView(position);
+                        View cosmeticView = drawView(position);
                         if (cosmeticView != null) {
-                            return onChildTouchEvent(cosmeticView, length, x, y, left, top, position);
+                            return onChildTouchEvent(cosmeticView, x, y, left, top, position);
                         }
                     }
                 }
@@ -425,12 +421,10 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
 
             //除了粘性item本身view为null，线性和网格布局混合情况下也有出现剩余空间的现象
             if (cachePosition != -1) {
-                View cosmeticView = supportExtension.getSupportView(cachePosition);
+                View cosmeticView = drawView(cachePosition);
                 if (cosmeticView != null) {
-                    int length = supportExtension.getSupportHeight(cachePosition);
-                    reMeasureAndLayout(cosmeticView, length);
                     if (x > leftDatumLine && x < leftDatumLine + cosmeticView.getWidth() && y > topDatumLine && y < topDatumLine + cosmeticView.getHeight()) {
-                        return onChildTouchEvent(cosmeticView, length, x, y, leftDatumLine, topDatumLine, cachePosition);
+                        return onChildTouchEvent(cosmeticView, x, y, leftDatumLine, topDatumLine, cachePosition);
                     }
                 }
             }
@@ -438,12 +432,10 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
             return false;
         } else {
             if (cachePosition != -1) {
-                View cosmeticView = supportExtension.getSupportView(cachePosition);
+                View cosmeticView = drawView(cachePosition);
                 if (cosmeticView != null) {
-                    int length = supportExtension.getSupportHeight(cachePosition);
-                    reMeasureAndLayout(cosmeticView, length);
                     if (x > leftDatumLine && x < leftDatumLine + cosmeticView.getWidth() && y > topDatumLine && y < topDatumLine + cosmeticView.getHeight()) {
-                        return onChildTouchEvent(cosmeticView, length, x, y, leftDatumLine, topDatumLine, cachePosition);
+                        return onChildTouchEvent(cosmeticView, x, y, leftDatumLine, topDatumLine, cachePosition);
                     }
                 }
             }
@@ -451,8 +443,7 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
         }
     }
 
-    private boolean onChildTouchEvent(View view, int length, float x, float y, int left, int top, int position) {
-        reMeasureAndLayout(view, length);
+    private boolean onChildTouchEvent(View view, float x, float y, int left, int top, int position) {
         if (onCosmeticViewClickListener != null) {
             List<View> children = ViewUtil.getChildViewWithId(view);
             for (int j = 0; j < children.size(); j++) {
@@ -467,6 +458,26 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
             onCosmeticItemClickListener.onCosmeticItemClick(position);
         }
         return true;
+    }
+
+    /**
+     * 绘制并缓存粘性view
+     *
+     * @param position 粘性item位置
+     */
+    private View drawView(int position) {
+        String cacheKey = supportExtension.getCacheKey(position);
+        if (cacheKey == null || cacheKey.equals("")) {
+            cacheKey = String.valueOf(position);
+        }
+        View view = cacheViews.get(cacheKey);
+        if (view == null) {
+            view = supportExtension.getSupportView(cachePosition);
+            int cacheHeight = supportExtension.getSupportHeight(position);
+            reMeasureAndLayout(view, cacheHeight);
+            cacheViews.put(cacheKey, view);
+        }
+        return view;
     }
 
     public static class Builder {
@@ -495,10 +506,16 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
         }
     }
 
+    /**
+     * 子view点击监听
+     */
     public interface OnCosmeticViewClickListener {
         void onCosmeticViewClick(View view, int position);
     }
 
+    /**
+     * 粘性item点击监听
+     */
     public interface OnCosmeticItemClickListener {
         void onCosmeticItemClick(int position);
     }
@@ -506,7 +523,7 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
     /**
      * 上拉加载更多时对粘性布局设置偏移
      *
-     * @param offset
+     * @param offset 绘制的偏移量
      */
     public void setOffset(int offset) {
         this.offset = offset;
