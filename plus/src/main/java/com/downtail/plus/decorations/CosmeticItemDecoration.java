@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -161,7 +162,7 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
                         orientation = ORIENTATION_NONE;
                     }
                     String cacheKey = supportExtension.getCacheKey(position);
-                    if (cacheKey == null || cacheKey.equals("")) {
+                    if (TextUtils.isEmpty(cacheKey)) {
                         cacheKey = String.valueOf(position);
                     }
                     cacheViews.put(cacheKey, cosmeticView);
@@ -205,7 +206,7 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
                         if (topDistance - distance <= top) {
                             cachePosition = position;
                             String cacheKey = supportExtension.getCacheKey(cachePosition);
-                            if (cacheKey == null || cacheKey.equals("")) {
+                            if (TextUtils.isEmpty(cacheKey)) {
                                 cacheKey = String.valueOf(cachePosition);
                             }
                             cacheEdges.put(cacheKey, child.getLeft());
@@ -232,7 +233,7 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
                         if (leftDistance - distance <= left) {
                             cachePosition = position;
                             String cacheKey = supportExtension.getCacheKey(cachePosition);
-                            if (cacheKey == null || cacheKey.equals("")) {
+                            if (TextUtils.isEmpty(cacheKey)) {
                                 cacheKey = String.valueOf(cachePosition);
                             }
                             cacheEdges.put(cacheKey, child.getTop());
@@ -274,7 +275,7 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
 
             if (cachePosition != -1 && orientation != ORIENTATION_NONE) {
                 String cacheKey = supportExtension.getCacheKey(cachePosition);
-                if (cacheKey == null || cacheKey.equals("")) {
+                if (TextUtils.isEmpty(cacheKey)) {
                     cacheKey = String.valueOf(cachePosition);
                 }
                 View cacheView = drawView(cachePosition);
@@ -467,7 +468,7 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
      */
     private View drawView(int position) {
         String cacheKey = supportExtension.getCacheKey(position);
-        if (cacheKey == null || cacheKey.equals("")) {
+        if (TextUtils.isEmpty(cacheKey)) {
             cacheKey = String.valueOf(position);
         }
         View view = cacheViews.get(cacheKey);
@@ -540,6 +541,7 @@ public class CosmeticItemDecoration extends RecyclerView.ItemDecoration {
      */
     public void clearCache() {
         cachePosition = -1;
+        cacheViews.clear();
     }
 
 }

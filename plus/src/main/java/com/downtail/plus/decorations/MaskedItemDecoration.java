@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -28,6 +29,11 @@ public class MaskedItemDecoration extends RecyclerView.ItemDecoration {
     private static final int ORIENTATION_NONE = -1;
 
     /**
+     * 实际的布局方向
+     */
+    private int orientation;
+
+    /**
      * 拓展接口
      */
     private SupportExtension supportExtension;
@@ -48,11 +54,6 @@ public class MaskedItemDecoration extends RecyclerView.ItemDecoration {
      * 缓存边界位置
      */
     private Map<String, Integer> cacheEdges;
-
-    /**
-     * 实际的布局方向
-     */
-    private int orientation;
 
     /**
      * top基准线，通常对应为屏幕y=0
@@ -158,7 +159,7 @@ public class MaskedItemDecoration extends RecyclerView.ItemDecoration {
                         if (topDistance <= top) {
                             cachePosition = position;
                             String cacheKey = supportExtension.getCacheKey(cachePosition);
-                            if (cacheKey == null || cacheKey.equals("")) {
+                            if (TextUtils.isEmpty(cacheKey)) {
                                 cacheKey = String.valueOf(cachePosition);
                             }
                             cacheEdges.put(cacheKey, child.getLeft());
@@ -206,7 +207,7 @@ public class MaskedItemDecoration extends RecyclerView.ItemDecoration {
                         if (leftDistance <= left) {
                             cachePosition = position;
                             String cacheKey = supportExtension.getCacheKey(cachePosition);
-                            if (cacheKey == null || cacheKey.equals("")) {
+                            if (TextUtils.isEmpty(cacheKey)) {
                                 cacheKey = String.valueOf(cachePosition);
                             }
                             cacheEdges.put(cacheKey, child.getTop());
@@ -253,7 +254,7 @@ public class MaskedItemDecoration extends RecyclerView.ItemDecoration {
 
             if (cachePosition != -1 && orientation != ORIENTATION_NONE) {
                 String cacheKey = supportExtension.getCacheKey(cachePosition);
-                if (cacheKey == null || cacheKey.equals("")) {
+                if (TextUtils.isEmpty(cacheKey)) {
                     cacheKey = String.valueOf(cachePosition);
                 }
                 View cacheView = cacheViews.get(cacheKey);
@@ -313,6 +314,9 @@ public class MaskedItemDecoration extends RecyclerView.ItemDecoration {
                 parent.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
                     @Override
                     public boolean onInterceptTouchEvent(@NonNull RecyclerView recyclerView, @NonNull MotionEvent motionEvent) {
+                        if (onMaskedItemClickListener == null && onMaskedViewClickListener == null) {
+                            return false;
+                        }
                         return gestureDetector.onTouchEvent(motionEvent);
                     }
 
@@ -357,7 +361,7 @@ public class MaskedItemDecoration extends RecyclerView.ItemDecoration {
     private boolean onTouchEvent(MotionEvent event) {
         if (cachePosition != -1) {
             String cacheKey = supportExtension.getCacheKey(cachePosition);
-            if (cacheKey == null || cacheKey.equals("")) {
+            if (TextUtils.isEmpty(cacheKey)) {
                 cacheKey = String.valueOf(cachePosition);
             }
             View cacheView = cacheViews.get(cacheKey);
@@ -476,6 +480,7 @@ public class MaskedItemDecoration extends RecyclerView.ItemDecoration {
      */
     public void clearCache() {
         cachePosition = -1;
+        cacheViews.clear();
     }
 
 }
