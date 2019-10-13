@@ -55,35 +55,24 @@ public class StickyItemDecoration extends RecyclerView.ItemDecoration {
                 int position = parent.getChildAdapterPosition(child);
                 int top = child.getTop();
                 int left = child.getLeft();
-
-                if (top < mTop) {
-                    if (extension.isStickyItem(position)){
-
-                    }else {
-
-                    }
-                } else {
-                    if (extension.isStickyItem(position)){
-
-                    }else {
-
-                    }
-                }
-
-                if (extension.isStickyItem(position)) {
-                    cacheBitmap(child, position);
-                    if (top < mTop) {
-                        mCachePosition = position;
-                    } else {
-                        int lastStickyPosition = getLastStickyPosition(position);
-                        if (lastStickyPosition != -1) {
-                            mCachePosition = lastStickyPosition;
+                if (mOrientation == LinearLayoutManager.VERTICAL) {
+                    if (extension.isStickyItem(position)) {
+                        cacheBitmap(child, position);
+                        if (top < mTop) {
+                            mCachePosition = position;
                         } else {
-                            mCachePosition = lastStickyPosition;
-                            break;
+                            int lastStickyPosition = getLastStickyPosition(position);
+                            if (lastStickyPosition != -1) {
+                                mCachePosition = lastStickyPosition;
+                            } else {
+                                mCachePosition = lastStickyPosition;
+                                break;
+                            }
                         }
+                    } else {
+
                     }
-                } else {
+                } else if (mOrientation == LinearLayoutManager.HORIZONTAL) {
 
                 }
             }
