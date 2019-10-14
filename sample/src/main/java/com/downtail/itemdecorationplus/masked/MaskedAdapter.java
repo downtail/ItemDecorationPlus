@@ -10,12 +10,13 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.downtail.itemdecorationplus.R;
+import com.downtail.plus.extensions.FloaterExtension;
 import com.downtail.plus.extensions.SupportExtension;
 import com.downtail.plus.utils.SizeUtil;
 
 import java.util.List;
 
-public class MaskedAdapter extends RecyclerView.Adapter<MaskedAdapter.SampleHolder> implements SupportExtension {
+public class MaskedAdapter extends RecyclerView.Adapter<MaskedAdapter.SampleHolder> implements SupportExtension, FloaterExtension {
 
 
     private Context context;
@@ -95,5 +96,15 @@ public class MaskedAdapter extends RecyclerView.Adapter<MaskedAdapter.SampleHold
     @Override
     public String getCacheKey(int position) {
         return String.valueOf(position);
+    }
+
+    @Override
+    public boolean isFloaterView(int position) {
+        return position % 6 == 1;
+    }
+
+    @Override
+    public int getItemType(int position) {
+        return 0;
     }
 }

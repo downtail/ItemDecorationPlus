@@ -1,20 +1,24 @@
 package com.downtail.plus;
 
 import android.content.Context;
+import android.support.annotation.IdRes;
 import android.support.annotation.IntRange;
 import android.support.annotation.LayoutRes;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.SparseArray;
-import android.util.SparseIntArray;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 public class FloaterView extends FrameLayout {
 
-    private SparseIntArray resources = new SparseIntArray();
+    private OnItemChildClickListener onItemChildClickListener;
+    private OnItemClickListener onItemClickListener;
+    private OnBindViewListener onBindViewListener;
     private SparseArray<View> cacheViews = new SparseArray<>();
+    private int position = -1;
 
     public FloaterView(Context context) {
         this(context, null);
@@ -24,21 +28,73 @@ public class FloaterView extends FrameLayout {
         super(context, attrs);
     }
 
-    public void addItemType(@IntRange(from = 0, to = Integer.MAX_VALUE) int itemType, @LayoutRes int itemLayout) {
-        resources.put(itemType, itemLayout);
+    public void setFloaterView(@IntRange(from = 0, to = Integer.MAX_VALUE) int itemType, int position) {
+        this.position = position;
+        int size = cacheViews.size();
+        for (int i = 0; i < size; i++) {
+            int key = cacheViews.keyAt(i);
+            View view = cacheViews.valueAt(i);
+            if (key == itemType) {
+                view.setVisibility(VISIBLE);
+                if (onBindViewListener != null) {
+                    onBindViewListener.onBind(view, position);
+                }
+            } else {
+                view.setVisibility(GONE);
+            }
+        }
     }
 
-    public View getItemView(@IntRange(from = 0, to = Integer.MAX_VALUE) int itemType) {
+    public void hideFloaterView() {
+        int size = cacheViews.size();
+        for (int i = 0; i < size; i++) {
+            View view = cacheViews.valueAt(i);
+            view.setVisibility(GONE);
+        }
+    }
+
+    public FloaterView addItemType(@IntRange(from = 0, to = Integer.MAX_VALUE) int itemType, @LayoutRes int itemLayout) {
+        return addItemType(itemType, itemLayout, NO_ID);
+    }
+
+    public FloaterView addItemType(@IntRange(from = 0, to = Integer.MAX_VALUE) int itemType, @LayoutRes int itemLayout, @IdRes int... viewIds) {
         View view = cacheViews.get(itemType);
         if (view == null) {
-            int itemLayout = resources.get(itemType);
             if (itemLayout == 0) {
                 throw new IllegalArgumentException("layout id can't be zero");
             }
-            view = View.inflate(getContext(), itemLayout, null);
+            view = LayoutInflater.from(this.getContext()).inflate(itemLayout, this, false);
+            addView(view, getChildCount());
+            view.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (onItemClickListener != null) {
+                        onItemClickListener.onItemClick(v, position);
+                    }
+                }
+            });
+            for (int viewId : viewIds) {
+                if (viewId != NO_ID) {
+                    View child = view.findViewById(viewId);
+                    if (child != null) {
+                        if (!child.isClickable()) {
+                            child.setClickable(true);
+                        }
+                        child.setOnClickListener(new OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                if (onItemChildClickListener != null) {
+                                    onItemChildClickListener.onItemChildClick(v, position);
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+            view.setVisibility(GONE);
             cacheViews.put(itemType, view);
         }
-        return view;
+        return this;
     }
 
     public static FloaterView init(RecyclerView recyclerView) {
@@ -51,10 +107,37 @@ public class FloaterView extends FrameLayout {
         }
         ViewGroup.LayoutParams layoutParams = recyclerView.getLayoutParams();
         int index = parent.indexOfChild(recyclerView);
-        FloaterView floaterView = new FloaterView(recyclerView.getContext());
         parent.removeView(recyclerView);
+        FloaterView floaterView = new FloaterView(recyclerView.getContext());
         floaterView.addView(recyclerView, 0);
         parent.addView(floaterView, index, layoutParams);
         return floaterView;
+    }
+
+    public FloaterView setOnItemChildClickListener(OnItemChildClickListener onItemChildClickListener) {
+        this.onItemChildClickListener = onItemChildClickListener;
+        return this;
+    }
+
+    public FloaterView setOnItemClickListener(OnItemClickListener onItemClickListener) {
+        this.onItemClickListener = onItemClickListener;
+        return this;
+    }
+
+    public FloaterView setOnBindViewListener(OnBindViewListener onBindViewListener) {
+        this.onBindViewListener = onBindViewListener;
+        return this;
+    }
+
+    public interface OnItemChildClickListener {
+        void onItemChildClick(View view, int position);
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(View view, int position);
+    }
+
+    public interface OnBindViewListener {
+        void onBind(View view, int position);
     }
 }

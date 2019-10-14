@@ -1,15 +1,19 @@
 package com.downtail.itemdecorationplus.masked;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
 import com.downtail.itemdecorationplus.R;
+import com.downtail.plus.FloaterView;
+import com.downtail.plus.decorations.FloaterItemDecoration;
 import com.downtail.plus.decorations.MaskedItemDecoration;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.scwang.smartrefresh.layout.api.RefreshFooter;
@@ -50,25 +54,51 @@ public class MaskedActivity extends AppCompatActivity implements OnMultiPurposeL
         });
         rvSample.setAdapter(maskedAdapter);
 
-        maskedItemDecoration = MaskedItemDecoration.Builder
-                .with(maskedAdapter)
-                .setOnMaskedItemClickListener(new MaskedItemDecoration.OnMaskedItemClickListener() {
+//        maskedItemDecoration = MaskedItemDecoration.Builder
+//                .with(maskedAdapter)
+//                .setOnMaskedItemClickListener(new MaskedItemDecoration.OnMaskedItemClickListener() {
+//                    @Override
+//                    public void onMaskedItemClick(int position) {
+//                        Toast.makeText(MaskedActivity.this, "你点击了item " + position, Toast.LENGTH_SHORT).show();
+//                    }
+//                })
+//                .setOnMaskedViewClickListener(new MaskedItemDecoration.OnMaskedViewClickListener() {
+//                    @Override
+//                    public void onMaskedViewClick(View view, int position) {
+//                        if (view.getId() == R.id.tv_sample) {
+//                            Toast.makeText(MaskedActivity.this, "你点击了sample" + position, Toast.LENGTH_SHORT).show();
+//                        }
+//                    }
+//                })
+//                .build();
+//
+//        rvSample.addItemDecoration(maskedItemDecoration);
+        FloaterView floaterView = FloaterView.init(rvSample)
+                .addItemType(0, R.layout.item_masked,R.id.tv_sample)
+                .setOnItemClickListener(new FloaterView.OnItemClickListener() {
                     @Override
-                    public void onMaskedItemClick(int position) {
-                        Toast.makeText(MaskedActivity.this, "你点击了item " + position, Toast.LENGTH_SHORT).show();
+                    public void onItemClick(View view, int position) {
+//                        Log.v("ysj", view.getId() + " " + position);
                     }
                 })
-                .setOnMaskedViewClickListener(new MaskedItemDecoration.OnMaskedViewClickListener() {
+                .setOnBindViewListener(new FloaterView.OnBindViewListener() {
                     @Override
-                    public void onMaskedViewClick(View view, int position) {
-                        if (view.getId() == R.id.tv_sample) {
-                            Toast.makeText(MaskedActivity.this, "你点击了sample" + position, Toast.LENGTH_SHORT).show();
+                    public void onBind(View view, int position) {
+                        view.setBackgroundColor(Color.parseColor("#18ce94"));
+                    }
+                })
+                .setOnItemChildClickListener(new FloaterView.OnItemChildClickListener() {
+                    @Override
+                    public void onItemChildClick(View view, int position) {
+                        switch (view.getId()){
+                            case R.id.tv_sample:
+                                Log.v("ysj", view.getId() + " tv_sample " + position);
+                                break;
                         }
                     }
-                })
-                .build();
-
-        rvSample.addItemDecoration(maskedItemDecoration);
+                });
+        FloaterItemDecoration floaterItemDecoration = new FloaterItemDecoration(maskedAdapter, floaterView);
+        rvSample.addItemDecoration(floaterItemDecoration);
     }
 
     private List<String> getData() {
@@ -101,7 +131,7 @@ public class MaskedActivity extends AppCompatActivity implements OnMultiPurposeL
 
     @Override
     public void onFooterMoving(RefreshFooter footer, boolean isDragging, float percent, int offset, int footerHeight, int maxDragHeight) {
-        maskedItemDecoration.setOffset(offset);
+//        maskedItemDecoration.setOffset(offset);
     }
 
     @Override
