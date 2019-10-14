@@ -9,6 +9,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.downtail.itemdecorationplus.R;
@@ -84,7 +85,9 @@ public class MaskedActivity extends AppCompatActivity implements OnMultiPurposeL
                 .setOnBindViewListener(new FloaterView.OnBindViewListener() {
                     @Override
                     public void onBind(View view, int position) {
-                        view.setBackgroundColor(Color.parseColor("#18ce94"));
+                        TextView tvSample=view.findViewById(R.id.tv_sample);
+                        tvSample.setText("gaga"+" "+position);
+                        view.setBackgroundColor(Color.parseColor("#ff0000"));
                     }
                 })
                 .setOnItemChildClickListener(new FloaterView.OnItemChildClickListener() {

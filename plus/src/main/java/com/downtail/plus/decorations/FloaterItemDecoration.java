@@ -13,9 +13,9 @@ public class FloaterItemDecoration extends RecyclerView.ItemDecoration {
     private FloaterExtension extension;
     private FloaterView floaterView;
 
-    public FloaterItemDecoration(FloaterExtension extension,FloaterView floaterView) {
+    public FloaterItemDecoration(FloaterExtension extension, FloaterView floaterView) {
         this.extension = extension;
-        this.floaterView=floaterView;
+        this.floaterView = floaterView;
     }
 
     @Override
@@ -26,7 +26,7 @@ public class FloaterItemDecoration extends RecyclerView.ItemDecoration {
         int mLeft = parent.getLeft() + parent.getPaddingLeft();
 
         int childCount = parent.getChildCount();
-        int cachePosition = -1;
+        int cachePosition;
         View child = parent.getChildAt(0);
         int position = parent.getChildAdapterPosition(child);
         if (extension.isFloaterView(position)) {
@@ -40,11 +40,11 @@ public class FloaterItemDecoration extends RecyclerView.ItemDecoration {
             int nextFloaterPosition = getNextFloaterPosition(position + 1, lastPosition);
             View nextFloaterView = getNextFloaterView(parent, nextFloaterPosition);
             if (nextFloaterView != null) {
-                floaterView.setFloaterView(extension.getItemType(cachePosition),cachePosition);
-            }else {
-                floaterView.hideFloaterView();
+                floaterView.setFloaterView(extension.getItemType(cachePosition), cachePosition, true, nextFloaterView.getTop());
+            } else {
+                floaterView.setFloaterView(extension.getItemType(cachePosition), cachePosition, false, mTop);
             }
-        }else {
+        } else {
             floaterView.hideFloaterView();
         }
     }
