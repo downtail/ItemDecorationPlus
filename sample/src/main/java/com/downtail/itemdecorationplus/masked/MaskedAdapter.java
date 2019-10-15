@@ -37,7 +37,7 @@ public class MaskedAdapter extends RecyclerView.Adapter<MaskedAdapter.SampleHold
     @Override
     public void onBindViewHolder(@NonNull SampleHolder sampleHolder, final int i) {
         sampleHolder.tvSample.setText(i + "");
-        if (i % 6 == 1) {
+        if (i % 26 == 1) {
             sampleHolder.tvSample.setBackgroundColor(Color.parseColor("#ff0000"));
         } else {
             sampleHolder.tvSample.setBackgroundColor(Color.parseColor("#ffffff"));
@@ -76,7 +76,7 @@ public class MaskedAdapter extends RecyclerView.Adapter<MaskedAdapter.SampleHold
 
     @Override
     public boolean isSupportItem(int position) {
-        return position % 6 == 1;
+        return position % 26 == 1;
     }
 
     @Override
@@ -100,7 +100,7 @@ public class MaskedAdapter extends RecyclerView.Adapter<MaskedAdapter.SampleHold
 
     @Override
     public boolean isFloaterView(int position) {
-        return position % 6 == 1;
+        return position % 26 == 1;
     }
 
     @Override

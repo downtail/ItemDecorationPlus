@@ -6,7 +6,6 @@ import android.support.annotation.IntRange;
 import android.support.annotation.LayoutRes;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,9 +28,8 @@ public class FloaterView extends FrameLayout {
         super(context, attrs);
     }
 
-    public void setFloaterView(@IntRange(from = 0, to = Integer.MAX_VALUE) int itemType, int cachePosition, boolean incompatible, int top) {
+    public void setFloaterView(@IntRange(from = 0, to = Integer.MAX_VALUE) int itemType, int cachePosition, boolean incompatible, int mTop, int top) {
         int size = cacheViews.size();
-        Log.v("ysj", position + " " + cachePosition);
         for (int i = 0; i < size; i++) {
             int key = cacheViews.keyAt(i);
             View view = cacheViews.valueAt(i);
@@ -44,12 +42,12 @@ public class FloaterView extends FrameLayout {
                 }
                 if (incompatible) {
                     if (view.getBottom() > top) {
-                        view.setTranslationY(-view.getBottom() + top);
+                        view.setTranslationY(mTop - view.getBottom() + top);
                     } else {
-                        view.setTranslationY(0);
+                        view.setTranslationY(mTop);
                     }
                 } else {
-                    view.setTranslationY(top);
+                    view.setTranslationY(mTop);
                 }
                 view.setVisibility(VISIBLE);
             } else {

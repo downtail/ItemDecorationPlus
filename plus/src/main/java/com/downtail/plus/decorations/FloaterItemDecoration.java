@@ -40,9 +40,9 @@ public class FloaterItemDecoration extends RecyclerView.ItemDecoration {
             int nextFloaterPosition = getNextFloaterPosition(position + 1, lastPosition);
             View nextFloaterView = getNextFloaterView(parent, nextFloaterPosition);
             if (nextFloaterView != null) {
-                floaterView.setFloaterView(extension.getItemType(cachePosition), cachePosition, true, nextFloaterView.getTop());
+                floaterView.setFloaterView(extension.getItemType(cachePosition), cachePosition, true, mTop, nextFloaterView.getTop());
             } else {
-                floaterView.setFloaterView(extension.getItemType(cachePosition), cachePosition, false, mTop);
+                floaterView.setFloaterView(extension.getItemType(cachePosition), cachePosition, false, mTop, 0);
             }
         } else {
             floaterView.hideFloaterView();
