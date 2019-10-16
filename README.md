@@ -10,19 +10,11 @@
 
 
 
-[普通布局item本身悬浮](https://s2.ax1x.com/2019/03/19/AnRb9A.gif)
+[普通item悬浮](https://s2.ax1x.com/2019/03/19/AnRb9A.gif)
 
+[树形](https://s2.ax1x.com/2019/03/19/AnWGDK.gif)
 
-
-[普通布局item顶部悬浮](https://s2.ax1x.com/2019/03/19/AnWVBT.gif)
-
-
-
-[分组菜单悬浮](https://s2.ax1x.com/2019/03/19/AnWGDK.gif)
-
-
-
-[支持GridLayoutManger.setSpanSizeLookup()](https://s2.ax1x.com/2019/03/19/AnWU4H.gif)
+[混合item](https://s2.ax1x.com/2019/03/19/AnWU4H.gif)
 
 
 
@@ -44,7 +36,7 @@ allprojects {
 
 ```
 
-implementation 'com.github.downtail:ItemDecorationPlus:0.1.2'
+implementation 'com.github.downtail:ItemDecorationPlus:0.2.0'
 
 ```
 
@@ -52,25 +44,22 @@ implementation 'com.github.downtail:ItemDecorationPlus:0.1.2'
 
 ```
 
-public class MaskedAdapter extends RecyclerView.Adapter<MaskedAdapter.SampleHolder> implements MaskedExtension{}
+public class MaskedAdapter extends RecyclerView.Adapter<MaskedAdapter.SampleHolder> implements FloaterExtension{}
 
 ```
 
 
 ```
 
-public interface MaskedExtension {
+public interface FloaterExtension {
 
-    //返回true则需要实现粘性
-    boolean isMaskedItem(int position);
+    //是否悬浮
+    boolean isFloaterView(int position);
 
-    //粘性view的高度
-    int getMaskedHeight(int position);
-
-    //自定义粘性view的布局
-    View getMaskedView(int position);
-
-  }
+    //悬浮的itemType
+    @IntRange(from = 0, to = Integer.MAX_VALUE)
+    int getItemType(int position);
+}
   
 ```
 
@@ -79,29 +68,26 @@ public interface MaskedExtension {
 
 ```
 
-MaskedItemDecoration maskedItemDecoration = MaskedItemDecoration.Builder
-                .with(maskedAdapter)
-                .setOnMaskedItemClickListener(new MaskedItemDecoration.OnMaskedItemClickListener() {
+FloaterView floaterView = FloaterView.init(rvExhibition)
+                .addItemType(ExhibitionMultipleEntity.ITEM_HEADER,R.layout.item_basket_exhibition_header)
+                .setOnBindViewListener(new FloaterView.OnBindViewListener() {
                     @Override
-                    public void onMaskedItemClick(int position) {//监听粘性item点击事件
-                        Toast.makeText(MaskedActivity.this, "你点击了item " + position, Toast.LENGTH_SHORT).show();
+                    public void onBind(View view, int position) {
+                        
                     }
                 })
-                .setOnMaskedViewClickListener(new MaskedItemDecoration.OnMaskedViewClickListener() {//监听粘性item中子view点击事件
+                .setOnItemChildClickListener(new FloaterView.OnItemChildClickListener() {
                     @Override
-                    public void onMaskedViewClick(View view, int position) {
-                        if (view.getId() == R.id.tv_sample) {
-                            Toast.makeText(MaskedActivity.this, "你点击了sample" + position, Toast.LENGTH_SHORT).show();
-                        }
+                    public void onItemChildClick(View view, int position) {
+                        
                     }
-                })
-                .build();
-
-        rvSample.addItemDecoration(maskedItemDecoration);
+                });
+        FloaterItemDecoration floaterItemDecoration = new FloaterItemDecoration(exhibitionMultipleAdapter, floaterView);
 
 ```
+5. 具体使用参考demo  
 
-5. 以上为MaskedItemDecoration使用，CosmeticItemDecoration用法相同。  
+6. 以上即为使用方法。  
   
      
      
