@@ -5,11 +5,12 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.widget.Toast;
+import android.view.View;
+import android.widget.TextView;
 
 import com.downtail.itemdecorationplus.R;
-import com.downtail.plus.decorations.CosmeticItemDecoration;
-import com.downtail.plus.decorations.MaskedItemDecoration;
+import com.downtail.plus.decorations.FloaterView;
+import com.downtail.plus.decorations.FloaterItemDecoration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,27 +42,17 @@ public class MixActivity extends AppCompatActivity {
         rvSample.setAdapter(mixAdapter);
         rvSample.setLayoutManager(gridLayoutManager);
 
-        MaskedItemDecoration maskedItemDecoration = MaskedItemDecoration.Builder
-                .with(mixAdapter)
-                .setOnMaskedItemClickListener(new MaskedItemDecoration.OnMaskedItemClickListener() {
+        FloaterView floaterView = FloaterView.init(rvSample)
+                .addItemType(MixEntity.TYPE_HEADER, R.layout.item_mix_header)
+                .setOnBindViewListener(new FloaterView.OnBindViewListener() {
                     @Override
-                    public void onMaskedItemClick(int position) {
-                        Toast.makeText(MixActivity.this, "ahha", Toast.LENGTH_SHORT).show();
+                    public void onBind(View view, int position) {
+                        TextView tvSample = view.findViewById(R.id.tv_mix_header);
+                        tvSample.setText(position + "");
                     }
-                })
-                .build();
-        rvSample.addItemDecoration(maskedItemDecoration);
-
-        CosmeticItemDecoration cosmeticItemDecoration=CosmeticItemDecoration.Builder
-                .with(mixAdapter)
-                .setOnCosmeticItemClickListener(new CosmeticItemDecoration.OnCosmeticItemClickListener() {
-                    @Override
-                    public void onCosmeticItemClick(int position) {
-                        Toast.makeText(MixActivity.this, "ahha", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .build();
-//        rvSample.addItemDecoration(cosmeticItemDecoration);
+                });
+        FloaterItemDecoration floaterItemDecoration = new FloaterItemDecoration(mixAdapter, floaterView);
+        rvSample.addItemDecoration(floaterItemDecoration);
 
         List<MixEntity> data = new ArrayList<>();
         for (int i = 0; i < 8; i++) {
@@ -72,5 +63,4 @@ public class MixActivity extends AppCompatActivity {
         }
         mixAdapter.setNewData(data);
     }
-
 }

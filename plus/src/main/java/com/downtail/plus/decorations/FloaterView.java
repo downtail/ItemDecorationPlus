@@ -1,4 +1,4 @@
-package com.downtail.plus;
+package com.downtail.plus.decorations;
 
 import android.content.Context;
 import android.support.annotation.IdRes;
@@ -21,11 +21,11 @@ public class FloaterView extends FrameLayout {
     private SparseArray<View> cacheViews = new SparseArray<>();
     private int position = -1;
 
-    public FloaterView(Context context) {
+    private FloaterView(Context context) {
         this(context, null);
     }
 
-    public FloaterView(Context context, AttributeSet attrs) {
+    private FloaterView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 

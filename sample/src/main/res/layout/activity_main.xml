@@ -15,20 +15,7 @@
             android:layout_width="120dp"
             android:layout_height="40dp"
             android:layout_centerInParent="true"
-            android:text="masked" />
-
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="80dp">
-
-        <Button
-            android:id="@+id/btn_cosmetic"
-            android:layout_width="120dp"
-            android:layout_height="40dp"
-            android:layout_centerInParent="true"
-            android:text="cosmetic" />
+            android:text="普通item悬浮" />
 
     </RelativeLayout>
 
@@ -41,7 +28,7 @@
             android:layout_width="120dp"
             android:layout_height="40dp"
             android:layout_centerInParent="true"
-            android:text="expand" />
+            android:text="树形" />
 
     </RelativeLayout>
 
@@ -54,7 +41,7 @@
             android:layout_width="120dp"
             android:layout_height="40dp"
             android:layout_centerInParent="true"
-            android:text="mix" />
+            android:text="混合item" />
 
     </RelativeLayout>
 

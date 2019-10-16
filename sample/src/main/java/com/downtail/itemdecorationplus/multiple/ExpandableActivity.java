@@ -10,7 +10,8 @@ import android.view.View;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.entity.MultiItemEntity;
 import com.downtail.itemdecorationplus.R;
-import com.downtail.plus.decorations.MaskedItemDecoration;
+import com.downtail.plus.decorations.FloaterView;
+import com.downtail.plus.decorations.FloaterItemDecoration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,22 +54,30 @@ public class ExpandableActivity extends AppCompatActivity {
         rvSample.setAdapter(expandableAdapter);
         expandableAdapter.expandAll();
 
-        MaskedItemDecoration maskedItemDecoration = MaskedItemDecoration.Builder
-                .with(expandableAdapter)
-                .setOnMaskedItemClickListener(new MaskedItemDecoration.OnMaskedItemClickListener() {
+        FloaterView floaterView = FloaterView.init(rvSample)
+                .addItemType(0, R.layout.item_menu, R.id.tv_menu)
+                .setOnBindViewListener(new FloaterView.OnBindViewListener() {
                     @Override
-                    public void onMaskedItemClick(int position) {
-                        if (expandableAdapter.getItemViewType(position) == 0) {
-                            MenuItem menuItem = (MenuItem) expandableAdapter.getData().get(position);
-                            if (menuItem.isExpanded()) {
-                                expandableAdapter.collapse(position);
-                            } else {
-                                expandableAdapter.expand(position);
-                            }
-                        }
+                    public void onBind(View view, int position) {
+
                     }
                 })
-                .build();
-        rvSample.addItemDecoration(maskedItemDecoration);
+                .setOnItemChildClickListener(new FloaterView.OnItemChildClickListener() {
+                    @Override
+                    public void onItemChildClick(View view, int position) {
+                        switch (view.getId()) {
+                            case R.id.tv_menu:
+                                MenuItem menuItem = (MenuItem) expandableAdapter.getData().get(position);
+                                if (menuItem.isExpanded()) {
+                                    expandableAdapter.collapse(position);
+                                } else {
+                                    expandableAdapter.expand(position);
+                                }
+                                break;
+                        }
+                    }
+                });
+        FloaterItemDecoration floaterItemDecoration = new FloaterItemDecoration(expandableAdapter, floaterView);
+        rvSample.addItemDecoration(floaterItemDecoration);
     }
 }

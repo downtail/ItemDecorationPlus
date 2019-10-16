@@ -11,12 +11,10 @@ import android.widget.TextView;
 
 import com.downtail.itemdecorationplus.R;
 import com.downtail.plus.extensions.FloaterExtension;
-import com.downtail.plus.extensions.SupportExtension;
-import com.downtail.plus.utils.SizeUtil;
 
 import java.util.List;
 
-public class MaskedAdapter extends RecyclerView.Adapter<MaskedAdapter.SampleHolder> implements SupportExtension, FloaterExtension {
+public class MaskedAdapter extends RecyclerView.Adapter<MaskedAdapter.SampleHolder> implements FloaterExtension {
 
 
     private Context context;
@@ -72,30 +70,6 @@ public class MaskedAdapter extends RecyclerView.Adapter<MaskedAdapter.SampleHold
 
     public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
-    }
-
-    @Override
-    public boolean isSupportItem(int position) {
-        return position % 26 == 1;
-    }
-
-    @Override
-    public int getSupportHeight(int position) {
-        return SizeUtil.dip2px(context, 50);
-    }
-
-    @Override
-    public View getSupportView(int position) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_masked, null, false);
-        view.setBackgroundColor(Color.parseColor("#ff0000"));
-        TextView textView = view.findViewById(R.id.tv_sample);
-        textView.setText(position + "");
-        return view;
-    }
-
-    @Override
-    public String getCacheKey(int position) {
-        return String.valueOf(position);
     }
 
     @Override

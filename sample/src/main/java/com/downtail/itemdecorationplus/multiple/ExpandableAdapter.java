@@ -1,19 +1,14 @@
 package com.downtail.itemdecorationplus.multiple;
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.TextView;
-
 import com.chad.library.adapter.base.BaseMultiItemQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.chad.library.adapter.base.entity.MultiItemEntity;
 import com.downtail.itemdecorationplus.R;
-import com.downtail.plus.extensions.SupportExtension;
-import com.downtail.plus.utils.SizeUtil;
+import com.downtail.plus.extensions.FloaterExtension;
 
 import java.util.List;
 
-public class ExpandableAdapter extends BaseMultiItemQuickAdapter<MultiItemEntity, BaseViewHolder> implements SupportExtension {
+public class ExpandableAdapter extends BaseMultiItemQuickAdapter<MultiItemEntity, BaseViewHolder> implements FloaterExtension {
 
     public ExpandableAdapter(List<MultiItemEntity> data) {
         super(data);
@@ -36,25 +31,12 @@ public class ExpandableAdapter extends BaseMultiItemQuickAdapter<MultiItemEntity
     }
 
     @Override
-    public boolean isSupportItem(int position) {
+    public boolean isFloaterView(int position) {
         return getItemViewType(position) == 0;
     }
 
     @Override
-    public int getSupportHeight(int position) {
-        return SizeUtil.dip2px(mContext, 50);
-    }
-
-    @Override
-    public View getSupportView(int position) {
-        View view = LayoutInflater.from(mContext).inflate(R.layout.item_menu, null, false);
-        TextView textView = view.findViewById(R.id.tv_menu);
-        textView.setText("这是头部" + position);
-        return view;
-    }
-
-    @Override
-    public String getCacheKey(int position) {
-        return String.valueOf(position);
+    public int getItemType(int position) {
+        return 0;
     }
 }

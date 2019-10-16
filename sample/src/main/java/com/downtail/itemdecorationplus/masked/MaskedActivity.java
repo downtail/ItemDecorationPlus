@@ -13,25 +13,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.downtail.itemdecorationplus.R;
-import com.downtail.plus.FloaterView;
+import com.downtail.plus.decorations.FloaterView;
 import com.downtail.plus.decorations.FloaterItemDecoration;
-import com.downtail.plus.decorations.MaskedItemDecoration;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
-import com.scwang.smartrefresh.layout.api.RefreshFooter;
-import com.scwang.smartrefresh.layout.api.RefreshHeader;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
-import com.scwang.smartrefresh.layout.constant.RefreshState;
-import com.scwang.smartrefresh.layout.listener.OnMultiPurposeListener;
+import com.scwang.smartrefresh.layout.listener.OnRefreshLoadMoreListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MaskedActivity extends AppCompatActivity implements OnMultiPurposeListener {
+public class MaskedActivity extends AppCompatActivity implements OnRefreshLoadMoreListener {
 
     SmartRefreshLayout refreshLayout;
     RecyclerView rvSample;
     MaskedAdapter maskedAdapter;
-    MaskedItemDecoration maskedItemDecoration;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -39,13 +34,12 @@ public class MaskedActivity extends AppCompatActivity implements OnMultiPurposeL
         setContentView(R.layout.activity_sample);
 
         refreshLayout = findViewById(R.id.refresh_layout);
-        refreshLayout.setOnMultiPurposeListener(this);
         refreshLayout.setEnableLoadMore(true);
         refreshLayout.setEnableAutoLoadMore(false);
+        refreshLayout.setOnRefreshLoadMoreListener(this);
 
         rvSample = findViewById(R.id.rv_sample);
         rvSample.setLayoutManager(new LinearLayoutManager(this));
-//        rvSample.setLayoutManager(new GridLayoutManager(this,3));
         maskedAdapter = new MaskedAdapter(this, getData());
         maskedAdapter.setOnItemClickListener(new MaskedAdapter.OnItemClickListener() {
             @Override
@@ -55,27 +49,8 @@ public class MaskedActivity extends AppCompatActivity implements OnMultiPurposeL
         });
         rvSample.setAdapter(maskedAdapter);
 
-//        maskedItemDecoration = MaskedItemDecoration.Builder
-//                .with(maskedAdapter)
-//                .setOnMaskedItemClickListener(new MaskedItemDecoration.OnMaskedItemClickListener() {
-//                    @Override
-//                    public void onMaskedItemClick(int position) {
-//                        Toast.makeText(MaskedActivity.this, "你点击了item " + position, Toast.LENGTH_SHORT).show();
-//                    }
-//                })
-//                .setOnMaskedViewClickListener(new MaskedItemDecoration.OnMaskedViewClickListener() {
-//                    @Override
-//                    public void onMaskedViewClick(View view, int position) {
-//                        if (view.getId() == R.id.tv_sample) {
-//                            Toast.makeText(MaskedActivity.this, "你点击了sample" + position, Toast.LENGTH_SHORT).show();
-//                        }
-//                    }
-//                })
-//                .build();
-//
-//        rvSample.addItemDecoration(maskedItemDecoration);
         FloaterView floaterView = FloaterView.init(rvSample)
-                .addItemType(0, R.layout.item_masked,R.id.tv_sample)
+                .addItemType(0, R.layout.item_masked, R.id.tv_sample)
                 .setOnItemClickListener(new FloaterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(View view, int position) {
@@ -85,15 +60,15 @@ public class MaskedActivity extends AppCompatActivity implements OnMultiPurposeL
                 .setOnBindViewListener(new FloaterView.OnBindViewListener() {
                     @Override
                     public void onBind(View view, int position) {
-                        TextView tvSample=view.findViewById(R.id.tv_sample);
-                        tvSample.setText("gaga"+" "+position);
+                        TextView tvSample = view.findViewById(R.id.tv_sample);
+                        tvSample.setText("gaga" + " " + position);
                         view.setBackgroundColor(Color.parseColor("#ff0000"));
                     }
                 })
                 .setOnItemChildClickListener(new FloaterView.OnItemChildClickListener() {
                     @Override
                     public void onItemChildClick(View view, int position) {
-                        switch (view.getId()){
+                        switch (view.getId()) {
                             case R.id.tv_sample:
                                 Log.v("ysj", view.getId() + " tv_sample " + position);
                                 break;
@@ -113,57 +88,12 @@ public class MaskedActivity extends AppCompatActivity implements OnMultiPurposeL
     }
 
     @Override
-    public void onHeaderMoving(RefreshHeader header, boolean isDragging, float percent, int offset, int headerHeight, int maxDragHeight) {
-
-    }
-
-    @Override
-    public void onHeaderReleased(RefreshHeader header, int headerHeight, int maxDragHeight) {
-
-    }
-
-    @Override
-    public void onHeaderStartAnimator(RefreshHeader header, int headerHeight, int maxDragHeight) {
-
-    }
-
-    @Override
-    public void onHeaderFinish(RefreshHeader header, boolean success) {
-
-    }
-
-    @Override
-    public void onFooterMoving(RefreshFooter footer, boolean isDragging, float percent, int offset, int footerHeight, int maxDragHeight) {
-//        maskedItemDecoration.setOffset(offset);
-    }
-
-    @Override
-    public void onFooterReleased(RefreshFooter footer, int footerHeight, int maxDragHeight) {
-
-    }
-
-    @Override
-    public void onFooterStartAnimator(RefreshFooter footer, int footerHeight, int maxDragHeight) {
-
-    }
-
-    @Override
-    public void onFooterFinish(RefreshFooter footer, boolean success) {
-
-    }
-
-    @Override
     public void onLoadMore(@NonNull RefreshLayout refreshLayout) {
-
+        refreshLayout.finishLoadMore(2000);
     }
 
     @Override
     public void onRefresh(@NonNull RefreshLayout refreshLayout) {
-
-    }
-
-    @Override
-    public void onStateChanged(@NonNull RefreshLayout refreshLayout, @NonNull RefreshState oldState, @NonNull RefreshState newState) {
-
+        refreshLayout.finishRefresh(2000);
     }
 }
