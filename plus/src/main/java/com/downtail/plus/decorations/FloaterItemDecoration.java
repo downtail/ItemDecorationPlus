@@ -2,6 +2,7 @@ package com.downtail.plus.decorations;
 
 import android.graphics.Canvas;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
@@ -22,30 +23,44 @@ public class FloaterItemDecoration extends RecyclerView.ItemDecoration {
     public void onDrawOver(@NonNull Canvas c, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
         super.onDrawOver(c, parent, state);
 
-        int mTop = parent.getTop() + parent.getPaddingTop();
-        int mLeft = parent.getLeft() + parent.getPaddingLeft();
+        int mTop = parent.getTop();
+        int mLeft = parent.getLeft();
+//        int mTop = parent.getTop() + parent.getPaddingTop();
+//        int mLeft = parent.getLeft() + parent.getPaddingLeft();
+        RecyclerView.LayoutManager layoutManager = parent.getLayoutManager();
 
         int childCount = parent.getChildCount();
-        int cachePosition;
-        View child = parent.getChildAt(0);
-        int position = parent.getChildAdapterPosition(child);
-        if (extension.isFloaterView(position)) {
-            cachePosition = position;
-        } else {
-            cachePosition = getPreviousFloaterPosition(position);
-        }
-        if (cachePosition != -1) {
-            View lastChild = parent.getChildAt(childCount - 1);
-            int lastPosition = parent.getChildAdapterPosition(lastChild);
-            int nextFloaterPosition = getNextFloaterPosition(position + 1, lastPosition);
-            View nextFloaterView = getNextFloaterView(parent, nextFloaterPosition);
-            if (nextFloaterView != null) {
-                floaterView.setFloaterView(extension.getItemType(cachePosition), cachePosition, true, mTop, nextFloaterView.getTop());
+        if (childCount > 0 && layoutManager instanceof LinearLayoutManager) {
+            int orientation = ((LinearLayoutManager) layoutManager).getOrientation();
+            int cachePosition;
+            View child = parent.getChildAt(0);
+            int position = parent.getChildAdapterPosition(child);
+            if (extension.isFloaterView(position)) {
+                cachePosition = position;
             } else {
-                floaterView.setFloaterView(extension.getItemType(cachePosition), cachePosition, false, mTop, 0);
+                cachePosition = getPreviousFloaterPosition(position - 1);
             }
-        } else {
-            floaterView.hideFloaterView();
+            if (cachePosition != -1) {
+                View lastChild = parent.getChildAt(childCount - 1);
+                int lastPosition = parent.getChildAdapterPosition(lastChild);
+                int nextFloaterPosition = getNextFloaterPosition(position + 1, lastPosition);
+                if (nextFloaterPosition != -1) {
+                    View nextFloaterView = getNextFloaterView(parent, nextFloaterPosition);
+                    if (nextFloaterView != null) {
+                        if (orientation == LinearLayoutManager.VERTICAL) {
+                            floaterView.setFloaterView(extension.getItemType(cachePosition), cachePosition, orientation, mTop, mLeft, true, nextFloaterView.getTop());
+                        } else if (orientation == LinearLayoutManager.HORIZONTAL) {
+                            floaterView.setFloaterView(extension.getItemType(cachePosition), cachePosition, orientation, mTop, mLeft, true, nextFloaterView.getLeft());
+                        }
+                    } else {
+                        floaterView.setFloaterView(extension.getItemType(cachePosition), cachePosition, orientation, mTop, mLeft, false, 0);
+                    }
+                } else {
+                    floaterView.setFloaterView(extension.getItemType(cachePosition), cachePosition, orientation, mTop, mLeft, false, 0);
+                }
+            } else {
+                floaterView.hideFloaterView();
+            }
         }
     }
 
@@ -73,9 +88,12 @@ public class FloaterItemDecoration extends RecyclerView.ItemDecoration {
 
     private View getNextFloaterView(RecyclerView parent, int position) {
         int childCount = parent.getChildCount();
-        for (int i = 1; i < childCount; i++) {
+        for (int i = 0; i < childCount; i++) {
             View child = parent.getChildAt(i);
-            if (parent.getChildAdapterPosition(child) == position) {
+            int childPosition = parent.getChildAdapterPosition(child);
+            if (childPosition > position) {
+                break;
+            } else if (childPosition == position) {
                 return child;
             }
         }

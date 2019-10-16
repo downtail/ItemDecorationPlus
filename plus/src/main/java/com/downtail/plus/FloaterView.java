@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.annotation.IdRes;
 import android.support.annotation.IntRange;
 import android.support.annotation.LayoutRes;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.SparseArray;
@@ -28,7 +29,7 @@ public class FloaterView extends FrameLayout {
         super(context, attrs);
     }
 
-    public void setFloaterView(@IntRange(from = 0, to = Integer.MAX_VALUE) int itemType, int cachePosition, boolean incompatible, int mTop, int top) {
+    public void setFloaterView(@IntRange(from = 0, to = Integer.MAX_VALUE) int itemType, int cachePosition, int mOrientation, int mTop, int mLeft, boolean incompatible, int criticalValue) {
         int size = cacheViews.size();
         for (int i = 0; i < size; i++) {
             int key = cacheViews.keyAt(i);
@@ -40,14 +41,26 @@ public class FloaterView extends FrameLayout {
                         onBindViewListener.onBind(view, position);
                     }
                 }
-                if (incompatible) {
-                    if (view.getBottom() > top) {
-                        view.setTranslationY(mTop - view.getBottom() + top);
+                if (mOrientation == LinearLayoutManager.VERTICAL) {
+                    if (incompatible) {
+                        if (view.getBottom() > criticalValue) {
+                            view.setTranslationY(mTop - view.getBottom() + criticalValue);
+                        } else {
+                            view.setTranslationY(mTop);
+                        }
                     } else {
                         view.setTranslationY(mTop);
                     }
-                } else {
-                    view.setTranslationY(mTop);
+                } else if (mOrientation == LinearLayoutManager.HORIZONTAL) {
+                    if (incompatible) {
+                        if (view.getRight() > criticalValue) {
+                            view.setTranslationX(mLeft - view.getRight() + criticalValue);
+                        } else {
+                            view.setTranslationX(mLeft);
+                        }
+                    } else {
+                        view.setTranslationX(mLeft);
+                    }
                 }
                 view.setVisibility(VISIBLE);
             } else {
@@ -120,6 +133,7 @@ public class FloaterView extends FrameLayout {
         int index = parent.indexOfChild(recyclerView);
         parent.removeView(recyclerView);
         FloaterView floaterView = new FloaterView(recyclerView.getContext());
+        recyclerView.setClipToPadding(false);
         floaterView.addView(recyclerView, 0);
         parent.addView(floaterView, index, layoutParams);
         return floaterView;
